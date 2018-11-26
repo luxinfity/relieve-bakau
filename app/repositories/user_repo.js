@@ -1,9 +1,9 @@
-const db = require('../models/sequelize');
+const User = require('../models/mongodb/user');
 
-exports.findOne = (conditions, attributes) => db.User.findOne({ where: conditions, attributes });
+exports.findOne = conditions => User.findOne(conditions);
 
-exports.findAll = (conditions, attributes) => db.User.findAll({ where: conditions, attributes });
+exports.findAll = conditions => User.findAll(conditions);
 
-exports.create = data => db.User.create(data);
+exports.create = data => User.create(data);
 
 module.exports = exports;

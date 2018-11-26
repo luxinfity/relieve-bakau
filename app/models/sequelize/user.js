@@ -18,7 +18,7 @@ module.exports = function (sequelize, DataTypes) {
         return bcrypt.compareSync(password, this.password);
     };
 
-    Member.prototype.validateRefresh = function (password) {
+    Member.prototype.validateRefresh = function () {
         return moment() < moment(this.tokenValidity);
     };
 
