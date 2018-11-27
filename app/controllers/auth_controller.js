@@ -29,6 +29,7 @@ exports.register = async (req, res, next) => {
         const payload = {
             ...req.body,
             password: bcrypt.hashSync(req.body.password, 8),
+            birthdate: moment(req.body.birthdate).format('YYYY-MM-DD'),
             isComplete: true
         };
         const newUser = await UserRepo.create(payload);
@@ -48,7 +49,7 @@ exports.register = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
     try {
-        const user = await UserRepo.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }] });
+        const user = await UserRepo.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], isComplete: true });
         if (!user) return next(exception('Credentials not match', 401));
         if (!bcrypt.compareSync(req.body.password, user.password)) return next(exception('Credentials not match', 401));
 

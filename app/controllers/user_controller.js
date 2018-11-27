@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const moment = require('moment');
 const { apiResponse, exception } = require('../utils/helpers');
 const UserRepo = require('../repositories/user_repo');
 
@@ -27,6 +28,7 @@ exports.completeRegister = async (req, res, next) => {
         const payload = {
             ...req.body,
             password: bcrypt.hashSync(req.body.password, 8),
+            birthdate: moment(req.body.birthdate).format('YYYY-MM-DD'),
             isComplete: true
         };
         await UserRepo.update({ _id: req.user.id }, payload);
