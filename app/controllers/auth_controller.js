@@ -1,3 +1,4 @@
+const { OAuth2Client } = require('google-auth-library');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
 const { apiResponse, exception } = require('../utils/helpers');
@@ -7,25 +8,76 @@ const UserTransformer = require('../utils/transformers/user_transformer');
 const Config = require('../config/jwt');
 const JWT = require('../utils/jwt');
 
-exports.login = async (req, res, next) => {
+const signUser = async (user) => {
+    const token = await JWT.create(UserTransformer(user));
+    const refresh = await JWT.generateRefreshToken();
+    await RefreshTokenRepo.createOrUpdate({ userId: user.id, token: refresh.token, expiredAt: refresh.validity });
+    return {
+        token,
+        refresh
+    };
+};
+
+exports.register = async (req, res, next) => {
     try {
-        const user = await UserRepo.findOne({ username: req.body.username });
-        if (!user) return next(exception('Credentials not match', 401));
-        if (!bcrypt.compareSync(req.body.password, user.password)) return next(exception('Credentials not match', 401));
+        let user = await UserRepo.findOne({ email: req.body.email });
+        if (user) return next(exception('email already exsist', 422));
 
-        const token = await JWT.create(UserTransformer(user));
-        const refresh = await JWT.generateRefreshToken();
+        user = await UserRepo.findOne({ username: req.body.username });
+        if (user) return next(exception('username already exsist', 422));
 
-        await RefreshTokenRepo.createOrUpdate({ userId: user.id, token: refresh.token, expiredAt: refresh.validity });
+        const payload = {
+            ...req.body,
+            password: bcrypt.hashSync(req.body.password, 8),
+            isComplete: true
+        };
+        const newUser = await UserRepo.create(payload);
 
+        const { token, refresh } = await signUser(newUser);
         const response = {
             token,
             refresh_token: refresh.token,
-            expires_in: Config.expired,
-            expired_at: refresh.validity
+            expires_in: Config.expired
         };
 
-        return apiResponse(res, 'login successful', 200, response);
+        return apiResponse(res, 'register successfull', 200, response);
+    } catch (err) {
+        return next(exception(err.message));
+    }
+};
+
+exports.completeRegister = async (req, res, next) => {
+    try {
+        const user = await UserRepo.findOne({ _id: req.user.id, isComplete: false });
+        if (!user) return next(exception('profile already completed', 403));
+
+        const payload = {
+            ...req.body,
+            password: bcrypt.hashSync(req.body.password, 8),
+            isComplete: true
+        };
+        await UserRepo.update({ _id: req.user.id }, payload);
+
+        return apiResponse(res, 'complete register successfull', 200);
+    } catch (err) {
+        return next(exception(err.message));
+    }
+};
+
+exports.login = async (req, res, next) => {
+    try {
+        const user = await UserRepo.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }] });
+        if (!user) return next(exception('Credentials not match', 401));
+        if (!bcrypt.compareSync(req.body.password, user.password)) return next(exception('Credentials not match', 401));
+
+        const { token, refresh } = await signUser(user);
+        const response = {
+            token,
+            refresh_token: refresh.token,
+            expires_in: Config.expired
+        };
+
+        return apiResponse(res, 'login successfull', 200, response);
     } catch (err) {
         return next(exception(err.message));
     }
@@ -47,9 +99,42 @@ exports.refresh = async (req, res, next) => {
             new_token: token
         };
 
-        return apiResponse(res, 'refresh token successful', 200, response);
+        return apiResponse(res, 'refresh token successfull', 200, response);
     } catch (err) {
         return next(exception(err.message));
+    }
+};
+
+exports.googleCallback = async (req, res, next) => {
+    try {
+        const idToken = req.body.idToken;
+        const client = new OAuth2Client(process.env.FIREBASE_CLIENT_ID);
+        const ticket = await client.verifyIdToken({
+            idToken,
+            audience: process.env.FIREBASE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+
+        let user = await UserRepo.findOne({ email: payload.email });
+        if (!user) {
+            const newPayload = {
+                ...req.body.profile,
+                email: payload.email,
+                isComplete: false
+            };
+            user = await UserRepo.create(newPayload);
+        }
+
+        const { token, refresh } = await signUser(user);
+        const response = {
+            token,
+            refresh_token: refresh.token,
+            expires_in: Config.expired
+        };
+
+        return apiResponse(res, 'login successfull', 200, response);
+    } catch (err) {
+        return next(exception('an error occured', 500, err.message));
     }
 };
 

@@ -12,7 +12,8 @@ const routeHandler = require('./routes');
 const exceptionHandler = require('./exceptions');
 
 const app = express();
-mongodb.boot();
+
+mongodb.initialize();
 
 /** Plugins */
 app.use(helmet());
