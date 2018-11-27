@@ -7,6 +7,7 @@ const mongodb = require('./models/mongodb');
 
 const apiGuard = require('./middlewares/request-handler/api_guard');
 const rateLimiter = require('./utils/rate_limiter');
+const gmaps = require('./utils/google_maps');
 
 const routeHandler = require('./routes');
 const exceptionHandler = require('./exceptions');
@@ -14,6 +15,8 @@ const exceptionHandler = require('./exceptions');
 const app = express();
 
 mongodb.initialize();
+gmaps.initialize();
+gmaps.getClient();
 
 /** Plugins */
 app.use(helmet());
