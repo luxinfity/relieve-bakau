@@ -1,7 +1,9 @@
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
+const Promise = require('bluebird');
 const { apiResponse, exception } = require('../utils/helpers');
 const UserRepo = require('../repositories/user_repo');
+const GMaps = require('../utils/google_maps');
 
 exports.profile = async (req, res, next) => {
     try {
@@ -36,6 +38,20 @@ exports.completeRegister = async (req, res, next) => {
         return apiResponse(res, 'complete register successfull', 200);
     } catch (err) {
         return next(exception(err.message));
+    }
+};
+
+exports.discover = async (req, res, next) => {
+    try {
+        const types = ['police', 'fire_station', 'hospital'];
+        const client = await GMaps.getClient();
+        const result = await Promise.map(types, type => client.placesNearby({ location: '-6.187823, 106.847826', radius: 1500, type })
+            .asPromise()
+            .then(({ json: { results: places } }) => places.map(item => item.name)));
+
+        return apiResponse(res, 'success', 200, result);
+    } catch (err) {
+        return next(exception('an error occured', 500, err.message));
     }
 };
 
