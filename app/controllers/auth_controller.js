@@ -1,22 +1,12 @@
 const { OAuth2Client } = require('google-auth-library');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
+const uuid = require('uuid');
 const { apiResponse, exception } = require('../utils/helpers');
 const UserRepo = require('../repositories/user_repo');
-const RefreshTokenRepo = require('../repositories/refresh_token_repo');
-const UserTransformer = require('../utils/transformers/user_transformer');
 const Config = require('../config/jwt');
-const JWT = require('../utils/jwt');
-
-const signUser = async (user) => {
-    const token = await JWT.create(UserTransformer(user));
-    const refresh = await JWT.generateRefreshToken();
-    await RefreshTokenRepo.createOrUpdate({ userId: user.id, token: refresh.token, expiredAt: refresh.validity });
-    return {
-        token,
-        refresh
-    };
-};
+const { signUser } = require('../utils/adapters/auth');
+const RefreshTokenRepo = require('../repositories/refresh_token_repo');
 
 exports.register = async (req, res, next) => {
     try {
@@ -27,13 +17,13 @@ exports.register = async (req, res, next) => {
         if (user) return next(exception('username already exsist', 422));
 
         const payload = {
+            uuid: uuid(),
             ...req.body,
             password: bcrypt.hashSync(req.body.password, 8),
             birthdate: moment(req.body.birthdate).format('YYYY-MM-DD'),
             isComplete: true
         };
         const newUser = await UserRepo.create(payload);
-
         const { token, refresh } = await signUser(newUser);
         const response = {
             token,
@@ -68,20 +58,17 @@ exports.login = async (req, res, next) => {
 
 exports.refresh = async (req, res, next) => {
     try {
-        const refresh = await RefreshTokenRepo.findOne({ token: req.body.refresh_token });
-        if (!refresh) return next(exception('Not Authorized', 401));
-        if (moment() > moment(refresh.expiredAt)) return next(exception('Not Authorized', 401));
+        const refreshToken = await RefreshTokenRepo.findOne({ token: req.body.refresh_token });
+        if (!refreshToken) return next(exception('Not Authorized', 401));
+        if (moment() > moment(refreshToken.expiredAt)) return next(exception('refresh token expired', 401));
 
-        const user = UserRepo.findOne({ id: refresh.userId });
-        const token = await JWT.create({
-            id: user.id,
-            username: user.username
-        });
+        const user = await UserRepo.findById(refreshToken.userId);
+        const { token } = await signUser(user, { withRefresh: false });
 
         const response = {
-            new_token: token
+            new_token: token,
+            expires_in: Config.expired
         };
-
         return apiResponse(res, 'refresh token successfull', 200, response);
     } catch (err) {
         return next(exception(err.message));
@@ -101,6 +88,7 @@ exports.googleCallback = async (req, res, next) => {
         let user = await UserRepo.findOne({ email: payload.email });
         if (!user) {
             const newPayload = {
+                uuid: uuid(),
                 ...req.body.profile,
                 email: payload.email,
                 isComplete: false

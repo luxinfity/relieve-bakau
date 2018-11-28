@@ -8,7 +8,7 @@ const GMaps = require('../utils/google_maps');
 
 exports.profile = async (req, res, next) => {
     try {
-        const user = await UserRepo.findOne({ _id: req.user.id });
+        const user = await UserRepo.findById(req.auth.uid);
         const response = {
             fullname: user.fullname,
             username: user.username,
@@ -25,7 +25,7 @@ exports.profile = async (req, res, next) => {
 
 exports.completeRegister = async (req, res, next) => {
     try {
-        const user = await UserRepo.findOne({ _id: req.user.id, isComplete: false });
+        const user = await UserRepo.findOne({ uuid: req.auth.uid, isComplete: false });
         if (!user) return next(exception('profile already completed', 403));
 
         const payload = {
@@ -34,7 +34,7 @@ exports.completeRegister = async (req, res, next) => {
             birthdate: moment(req.body.birthdate).format('YYYY-MM-DD'),
             isComplete: true
         };
-        await UserRepo.update({ _id: req.user.id }, payload);
+        await UserRepo.update({ uuid: req.auth.uid }, payload);
 
         return apiResponse(res, 'complete register successfull', 200);
     } catch (err) {
@@ -60,10 +60,10 @@ exports.updateLocation = async (req, res, next) => {
     try {
         const payload = {
             ...req.body,
-            userId: req.user.id
+            userId: req.auth.uid
         };
         await Location.create(payload);
-        return apiResponse(res, 'location and status updated', 201, payload);
+        return apiResponse(res, 'location and status updated', 201);
     } catch (err) {
         return next(exception('an error occured', 500, err.message));
     }

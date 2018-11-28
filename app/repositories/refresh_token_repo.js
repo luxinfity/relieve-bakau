@@ -1,7 +1,15 @@
-const RefreshToken = require('../models/mongodb/refresh_token');
+const MongoContext = require('../models/mongodb');
 
-exports.createOrUpdate = data => RefreshToken.update({ userId: data.userId }, data, { upsert: true });
+const collection = 'refresh_tokens';
 
-exports.findOne = data => RefreshToken.findOne(data);
+exports.findOne = async (conditions) => {
+    const mongoClient = await MongoContext.getInstance();
+    return mongoClient.collection(collection).findOne(conditions);
+};
+
+exports.createOrUpdate = async (conditions, data) => {
+    const mongoClient = await MongoContext.getInstance();
+    return mongoClient.collection(collection).updateOne(conditions, { $set: data }, { upsert: true });
+};
 
 module.exports = exports;

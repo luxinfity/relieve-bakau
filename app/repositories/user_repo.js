@@ -1,11 +1,25 @@
-const User = require('../models/mongodb/user');
+const MongoContext = require('../models/mongodb');
 
-exports.findAll = conditions => User.findAll(conditions);
+const collection = 'users';
 
-exports.findOne = conditions => User.findOne(conditions);
+exports.findOne = async (conditions) => {
+    const mongoClient = await MongoContext.getInstance();
+    return mongoClient.collection(collection).findOne(conditions);
+};
 
-exports.create = data => User.create(data);
+exports.findById = async (uuid) => {
+    const mongoClient = await MongoContext.getInstance();
+    return mongoClient.collection(collection).findOne({ uuid });
+};
 
-exports.update = (condition, data) => User.update(condition, data);
+exports.create = async (datas) => {
+    const mongoClient = await MongoContext.getInstance();
+    return mongoClient.collection(collection).insertOne(datas).then(res => res.ops[0]);
+};
+
+exports.update = async (conditions, data) => {
+    const mongoClient = await MongoContext.getInstance();
+    return mongoClient.collection(collection).update(conditions, { $set: data });
+};
 
 module.exports = exports;

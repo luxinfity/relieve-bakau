@@ -1,9 +1,15 @@
-const LocationHistory = require('../models/mongodb/location_history');
+const MongoContext = require('../models/mongodb');
 
-exports.findOne = data => LocationHistory.findOne(data);
+const collection = 'location_histories';
 
-exports.findAll = data => LocationHistory.find(data);
+exports.findOne = async (conditions) => {
+    const mongoClient = await MongoContext.getInstance();
+    return mongoClient.collection(collection).findOne(conditions);
+};
 
-exports.create = data => LocationHistory.create(data);
+exports.create = async (datas) => {
+    const mongoClient = await MongoContext.getInstance();
+    return mongoClient.collection(collection).insertOne(datas);
+};
 
 module.exports = exports;

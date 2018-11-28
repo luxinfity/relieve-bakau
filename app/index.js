@@ -16,7 +16,6 @@ const app = express();
 
 mongodb.initialize();
 gmaps.initialize();
-gmaps.getClient();
 
 /** Plugins */
 app.use(helmet());
