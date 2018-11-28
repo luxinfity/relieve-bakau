@@ -1,12 +1,12 @@
 const { OAuth2Client } = require('google-auth-library');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
-const uuid = require('uuid');
 const { apiResponse, exception } = require('../utils/helpers');
 const UserRepo = require('../repositories/user_repo');
 const Config = require('../config/jwt');
 const { signUser } = require('../utils/adapters/auth');
 const RefreshTokenRepo = require('../repositories/refresh_token_repo');
+const UserTrans = require('../utils/transformers/user_transformer');
 
 exports.register = async (req, res, next) => {
     try {
@@ -16,14 +16,9 @@ exports.register = async (req, res, next) => {
         user = await UserRepo.findOne({ username: req.body.username });
         if (user) return next(exception('username already exsist', 422));
 
-        const payload = {
-            uuid: uuid(),
-            ...req.body,
-            password: bcrypt.hashSync(req.body.password, 8),
-            birthdate: moment(req.body.birthdate).format('YYYY-MM-DD'),
-            isComplete: true
-        };
+        const payload = UserTrans.create(req.body);
         const newUser = await UserRepo.create(payload);
+
         const { token, refresh } = await signUser(newUser);
         const response = {
             token,
@@ -87,12 +82,7 @@ exports.googleCallback = async (req, res, next) => {
 
         let user = await UserRepo.findOne({ email: payload.email });
         if (!user) {
-            const newPayload = {
-                uuid: uuid(),
-                ...req.body.profile,
-                email: payload.email,
-                isComplete: false
-            };
+            const newPayload = UserTrans.create({ ...req.body.profile, email: payload.email }, { isComplete: false });
             user = await UserRepo.create(newPayload);
         }
 

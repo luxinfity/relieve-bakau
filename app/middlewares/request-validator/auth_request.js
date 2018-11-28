@@ -13,20 +13,12 @@ const schemas = {
     }),
     register: Joi.object({
         body: Joi.object({
-            fullname: Joi.string().required(),
-            username: Joi.string().required(),
-            email: Joi.string().required(),
-            password: Joi.string().required(),
+            fullname: Joi.string().min(4).max(50).required(),
+            username: Joi.string().min(4).max(20).required(),
+            email: Joi.string().max(50).required(),
+            password: Joi.string().min(5).max(16).required(),
             birthdate: Joi.date().format('YYYY-MM-DD').required(),
-            phone: Joi.string().required()
-        }).required()
-    }),
-    completeRegistration: Joi.object({
-        body: Joi.object({
-            username: Joi.string().required(),
-            password: Joi.string().required(),
-            birthdate: Joi.date().format('YYYY-MM-DD').required(),
-            phone: Joi.string().required()
+            phone: Joi.string().min(7).max(20).required()
         }).required()
     }),
     refresh: Joi.object({
@@ -38,7 +30,7 @@ const schemas = {
         body: Joi.object({
             idToken: Joi.string().required(),
             profile: Joi.object({
-                fullname: Joi.string().required()
+                fullname: Joi.string().min(4).max(50).required()
             }).required()
         }).required()
     })

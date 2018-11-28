@@ -7,10 +7,10 @@ const validator = require('../request-handler/validator');
 const schemas = {
     completeRegistration: Joi.object({
         body: Joi.object({
-            username: Joi.string().required(),
-            password: Joi.string().required(),
+            username: Joi.string().min(4).max(20).required(),
+            password: Joi.string().min(5).max(16).required(),
             birthdate: Joi.date().format('YYYY-MM-DD').required(),
-            phone: Joi.string().required()
+            phone: Joi.string().min(7).max(20).required()
         }).required()
     }),
     updateLocation: Joi.object({
@@ -19,7 +19,7 @@ const schemas = {
                 type: Joi.string().default('Point').valid('Point'),
                 coordinates: Joi.array().items(Joi.number().required()).min(2).max(2)
             }).required(),
-            status: Joi.number().integer().required()
+            status: Joi.number().integer().valid(0, 10, 20).required()
         }).required()
     })
 };
