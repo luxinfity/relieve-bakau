@@ -3,13 +3,16 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const RefreshTokenSchema = new Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
     },
     token: {
-        type: String
+        type: String,
+        required: true
     },
     expiredAt: {
-        type: Date
+        type: Date,
+        required: true
     }
 }, { versionKey: false });
 

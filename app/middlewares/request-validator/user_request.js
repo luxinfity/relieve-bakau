@@ -12,6 +12,15 @@ const schemas = {
             birthdate: Joi.date().format('YYYY-MM-DD').required(),
             phone: Joi.string().required()
         }).required()
+    }),
+    updateLocation: Joi.object({
+        body: Joi.object({
+            location: Joi.object({
+                type: Joi.string().default('Point').valid('Point'),
+                coordinates: Joi.array().items(Joi.number().required()).min(2).max(2)
+            }).required(),
+            status: Joi.number().integer().required()
+        }).required()
     })
 };
 

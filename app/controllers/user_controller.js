@@ -3,6 +3,7 @@ const moment = require('moment');
 const Promise = require('bluebird');
 const { apiResponse, exception } = require('../utils/helpers');
 const UserRepo = require('../repositories/user_repo');
+const Location = require('../repositories/location_history_repo');
 const GMaps = require('../utils/google_maps');
 
 exports.profile = async (req, res, next) => {
@@ -50,6 +51,19 @@ exports.discover = async (req, res, next) => {
             .then(({ json: { results: places } }) => places.map(item => item.name)));
 
         return apiResponse(res, 'success', 200, result);
+    } catch (err) {
+        return next(exception('an error occured', 500, err.message));
+    }
+};
+
+exports.updateLocation = async (req, res, next) => {
+    try {
+        const payload = {
+            ...req.body,
+            userId: req.user.id
+        };
+        await Location.create(payload);
+        return apiResponse(res, 'location and status updated', 201, payload);
     } catch (err) {
         return next(exception('an error occured', 500, err.message));
     }
