@@ -6,7 +6,7 @@ exports.signUser = async (user, { withRefresh } = { withRefresh: true }) => {
         uid: user.uuid
     });
     const refresh = await JWT.generateRefreshToken();
-    if (withRefresh) await RefreshTokenRepo.createOrUpdate({ userId: user.uuid }, { userId: user.uuid, token: refresh.token, expiredAt: refresh.validity });
+    if (withRefresh) await RefreshTokenRepo.createOrUpdate({ user_id: user.uuid }, { user_id: user.uuid, token: refresh.token, expired_at: refresh.validity });
     return {
         token,
         refresh

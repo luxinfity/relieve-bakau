@@ -34,14 +34,9 @@ exports.register = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
     try {
-        const user = await UserRepo.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], isComplete: true });
+        const user = await UserRepo.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], is_complete: true });
         if (!user) return next(exception('Credentials not match', 401));
         if (!bcrypt.compareSync(req.body.password, user.password)) return next(exception('Credentials not match', 401));
-
-        const payload = { 
-            fcm_token: req.body.fcm_token
-        };
-        await UserRepo.update({ username: req.body.username }, payload);
 
         const { token, refresh } = await signUser(user);
         const response = {
@@ -60,9 +55,9 @@ exports.refresh = async (req, res, next) => {
     try {
         const refreshToken = await RefreshTokenRepo.findOne({ token: req.body.refresh_token });
         if (!refreshToken) return next(exception('Not Authorized', 401));
-        if (moment() > moment(refreshToken.expiredAt)) return next(exception('refresh token expired', 401));
+        if (moment() > moment(refreshToken.expired_at)) return next(exception('refresh token expired', 401));
 
-        const user = await UserRepo.findById(refreshToken.userId);
+        const user = await UserRepo.findById(refreshToken.user_id);
         const { token } = await signUser(user, { withRefresh: false });
 
         const response = {
@@ -87,7 +82,7 @@ exports.googleCallback = async (req, res, next) => {
 
         let user = await UserRepo.findOne({ email: payload.email });
         if (!user) {
-            const newPayload = UserTrans.create({ ...req.body.profile, email: payload.email }, { isComplete: false });
+            const newPayload = UserTrans.create({ ...req.body.profile, email: payload.email }, { is_complete: false });
             user = await UserRepo.create(newPayload);
         }
 

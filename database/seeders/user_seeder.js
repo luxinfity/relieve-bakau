@@ -13,6 +13,6 @@ const User = require('../../app/models/mongodb/user');
         password: bcrypt.hashSync('admin', 8),
         birthdate: '1995-12-12',
         phone: '081242480700',
-        isComplete: true
+        is_complete: true
     });
 }());
