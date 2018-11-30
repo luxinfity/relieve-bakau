@@ -21,6 +21,11 @@ const schemas = {
             }).required(),
             status: Joi.number().integer().valid(0, 10, 20).required()
         }).required()
+    }),
+    updateFcmToken: Joi.object({
+        body: Joi.object({
+            fcm_token: Joi.string().required()
+        }).required()
     })
 };
 

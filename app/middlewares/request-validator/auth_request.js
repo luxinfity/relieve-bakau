@@ -8,7 +8,8 @@ const schemas = {
     login: Joi.object({
         body: Joi.object({
             username: Joi.string().required(),
-            password: Joi.string().required()
+            password: Joi.string().required(),
+            fcm_token: Joi.string().required()
         }).required()
     }),
     register: Joi.object({
@@ -18,7 +19,8 @@ const schemas = {
             email: Joi.string().max(50).required(),
             password: Joi.string().min(5).max(16).required(),
             birthdate: Joi.date().format('YYYY-MM-DD').required(),
-            phone: Joi.string().min(7).max(20).required()
+            phone: Joi.string().min(7).max(20).required(),
+            fcm_token: Joi.string().required()
         }).required()
     }),
     refresh: Joi.object({
@@ -31,7 +33,8 @@ const schemas = {
             idToken: Joi.string().required(),
             profile: Joi.object({
                 fullname: Joi.string().min(4).max(50).required()
-            }).required()
+            }).required(),
+            fcm_token: Joi.string().required()
         }).required()
     })
 };
