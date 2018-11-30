@@ -38,6 +38,11 @@ exports.login = async (req, res, next) => {
         if (!user) return next(exception('Credentials not match', 401));
         if (!bcrypt.compareSync(req.body.password, user.password)) return next(exception('Credentials not match', 401));
 
+        const payload = { 
+            fcm_token: req.body.fcm_token
+        };
+        await UserRepo.update({ username: req.body.username }, payload);
+
         const { token, refresh } = await signUser(user);
         const response = {
             token,
