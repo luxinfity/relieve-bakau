@@ -15,3 +15,5 @@ exports.discover = async (req, res, next) => {
         return next(exception('an error occured', 500, err.message));
     }
 };
+
+module.exports = exports;

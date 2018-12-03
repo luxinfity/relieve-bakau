@@ -6,7 +6,7 @@ const UserRepo = require('../repositories/user_repo');
 const Config = require('../config/jwt');
 const { signUser } = require('../utils/adapters/auth');
 const RefreshTokenRepo = require('../repositories/refresh_token_repo');
-const UserTrans = require('../utils/transformers/user_transformer');
+const UserTransformer = require('../utils/transformers/user_transformer');
 
 exports.register = async (req, res, next) => {
     try {
@@ -16,7 +16,7 @@ exports.register = async (req, res, next) => {
         user = await UserRepo.findOne({ username: req.body.username });
         if (user) return next(exception('username already exsist', 422));
 
-        const payload = UserTrans.create(req.body);
+        const payload = UserTransformer.create(req.body);
         const newUser = await UserRepo.create(payload);
 
         const { token, refresh } = await signUser(newUser);
@@ -82,7 +82,7 @@ exports.googleCallback = async (req, res, next) => {
 
         let user = await UserRepo.findOne({ email: payload.email });
         if (!user) {
-            const newPayload = UserTrans.create({ ...req.body.profile, email: payload.email }, { is_complete: false });
+            const newPayload = UserTransformer.create({ ...req.body.profile, email: payload.email }, { is_complete: false });
             user = await UserRepo.create(newPayload);
         }
 

@@ -4,7 +4,6 @@ const { apiResponse, exception } = require('../utils/helpers');
 const UserRepo = require('../repositories/user_repo');
 const Location = require('../repositories/location_history_repo');
 const UserTrans = require('../utils/transformers/user_transformer');
-const FCM = require('../repositories/fcm_token_repo');
 
 exports.profile = async (req, res, next) => {
     try {
@@ -51,10 +50,9 @@ exports.updateLocation = async (req, res, next) => {
 exports.updateFcmToken = async (req, res, next) => {
     try {
         const payload = {
-            user_id: req.auth.uid,
-            token: req.body.fcm_token
+            fcm_token: req.body.fcm_token
         };
-        await FCM.createOrUpdate({ user_id: req.auth.uid }, payload);
+        await UserRepo.update({ uuid: req.auth.uid }, payload);
         return apiResponse(res, 'fcm created/updated', 200);
     } catch (err) {
         return next(exception('an error occured', 500, err.message));
