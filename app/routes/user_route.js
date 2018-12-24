@@ -4,7 +4,7 @@ const ProfileRequest = require('../middlewares/request-validator/user_request');
 
 router.get('/profile', UserController.profile);
 router.post('/complete-registration', ProfileRequest('completeRegistration'), UserController.completeRegister);
-router.post('/update-location', ProfileRequest('updateLocation'), UserController.updateLocation);
+router.post('/update-position', ProfileRequest('updatePosition'), UserController.updatePosition);
 router.post('/update-fcm', ProfileRequest('updateFcmToken'), UserController.updateFcmToken);
 
 module.exports = router;

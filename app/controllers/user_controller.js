@@ -1,24 +1,24 @@
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
-const { httpResponse, exception } = require('../utils/helpers');
-const UserRepo = require('../repositories/user_repo');
-const Location = require('../repositories/location_history_repo');
+const httpResponse = require('../utils/helpers').httpResponse;
+const HttpException = require('../utils/http_exception');
+const User = require('../models/user_model');
+const Position = require('../models/position_model');
 const UserTrans = require('../utils/transformers/user_transformer');
 
 exports.profile = async (req, res, next) => {
     try {
-        const user = await UserRepo.findById(req.auth.uid);
-        const response = UserTrans.profile(user);
-        return httpResponse(res, 'successfully retrieved profile data', 200, response);
+        const user = await User.findOne({ uuid: req.auth.uid });
+        return httpResponse(res, 'successfully retrieved profile data', UserTrans.profile(user));
     } catch (err) {
-        return next(exception(err.message));
+        return next(HttpException.InternalServerError(err.message));
     }
 };
 
 exports.completeRegister = async (req, res, next) => {
     try {
-        const user = await UserRepo.findOne({ uuid: req.auth.uid, is_complete: false });
-        if (!user) return next(exception('profile already completed', 403));
+        const user = await User.findOne({ uuid: req.auth.uid, is_complete: false });
+        if (!user) throw HttpException.Forbidden('profile already completed');
 
         const payload = {
             ...req.body,
@@ -26,24 +26,25 @@ exports.completeRegister = async (req, res, next) => {
             birthdate: moment(req.body.birthdate).format('YYYY-MM-DD'),
             is_complete: true
         };
-        await UserRepo.update({ uuid: req.auth.uid }, payload);
 
-        return httpResponse(res, 'complete register successfull', 200);
+        await user.update(payload);
+        return httpResponse(res, 'complete register successfull');
     } catch (err) {
-        return next(exception(err.message));
+        if (err.status) return next(err);
+        return next(HttpException.InternalServerError(err.message));
     }
 };
 
-exports.updateLocation = async (req, res, next) => {
+exports.updatePosition = async (req, res, next) => {
     try {
         const payload = {
             ...req.body,
             user_id: req.auth.uid
         };
-        await Location.create(payload);
-        return httpResponse(res, 'location and status updated', 201);
+        await Position.create(payload);
+        return httpResponse(res, 'position and status updated');
     } catch (err) {
-        return next(exception('an error occured', 500, err.message));
+        return next(HttpException.InternalServerError(err.message));
     }
 };
 
@@ -52,10 +53,10 @@ exports.updateFcmToken = async (req, res, next) => {
         const payload = {
             fcm_token: req.body.fcm_token
         };
-        await UserRepo.update({ uuid: req.auth.uid }, payload);
-        return httpResponse(res, 'fcm created/updated', 200);
+        await User.update({ uuid: req.auth.uid }, payload);
+        return httpResponse(res, 'fcm created or updated');
     } catch (err) {
-        return next(exception('an error occured', 500, err.message));
+        return next(HttpException.InternalServerError(err.message));
     }
 };
 

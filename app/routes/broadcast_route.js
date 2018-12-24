@@ -1,6 +1,6 @@
-const router = require('express').Router();
-// const LocationController = require('../controllers/location_controller');
+// const router = require('express').Router();
+// const PositionController = require('../controllers/position_controller');
 
-// router.get('/test', LocationController.latest);
+// router.get('/test', PositionController.latest);
 
-module.exports = router;
+// module.exports = router;

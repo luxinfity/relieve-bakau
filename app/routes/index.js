@@ -1,10 +1,10 @@
-// const UserRoutes = require('../routes/user_route');
+const UserRoutes = require('../routes/user_route');
 const AuthRoutes = require('../routes/auth_route');
 // const Broadcast = require('../routes/broadcast_route');
-// const JWTAuth = require('../middlewares/request-handler/jwt_auth');
+const JWTAuth = require('../middlewares/request-handler/jwt_auth');
 
 module.exports = (app) => {
     // app.use('/broadcast', Broadcast);
-    // app.use('/user', JWTAuth, UserRoutes);
+    app.use('/user', JWTAuth, UserRoutes);
     app.use('/', AuthRoutes);
 };

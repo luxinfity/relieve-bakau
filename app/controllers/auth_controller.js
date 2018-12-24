@@ -27,7 +27,7 @@ exports.register = async (req, res, next) => {
             expires_in: Config.expired
         };
 
-        return httpResponse(res, 'register successfull', 200, response);
+        return httpResponse(res, 'register successfull', response);
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));
@@ -46,7 +46,7 @@ exports.login = async (req, res, next) => {
             expires_in: Config.expired
         };
 
-        return httpResponse(res, 'login successfull', 200, response);
+        return httpResponse(res, 'login successfull', response);
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));
@@ -63,7 +63,7 @@ exports.refresh = async (req, res, next) => {
             new_token: token,
             expires_in: Config.expired
         };
-        return httpResponse(res, 'token refreshed', 200, response);
+        return httpResponse(res, 'token refreshed', response);
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));
@@ -93,7 +93,7 @@ exports.googleCallback = async (req, res, next) => {
             expires_in: Config.expired
         };
 
-        return httpResponse(res, 'login successfull', 200, response);
+        return httpResponse(res, 'login successfull', response);
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));
