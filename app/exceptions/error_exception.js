@@ -4,7 +4,8 @@ module.exports = (err, req, res, next) => {
     const {
         // message,
         status = 500,
-        detail = 'something went wrong'
+        user_message: userMessage = 'something went wrong',
+        message_detail: messageDetail
     } = err;
 
     let stack = err.stack;
@@ -12,8 +13,8 @@ module.exports = (err, req, res, next) => {
 
     return res.status(status).json({
         status,
-        message: detail,
-        // detail,
+        message: userMessage,
+        detail: messageDetail,
         stack
     });
 };

@@ -8,10 +8,11 @@ const errors = [
 ];
 
 errors.forEach((e) => {
-    exports[e.name] = (detail) => {
+    exports[e.name] = (userMessage, messageDetail) => {
         const err = new Error(e.message);
         err.status = e.statusCode;
-        if (detail) err.detail = detail;
+        err.user_message = userMessage;
+        if (messageDetail) err.message_detail = messageDetail;
         return err;
     };
 });
