@@ -1,4 +1,4 @@
-const MongoContext = require('../models/mongodb');
+const Mongo = require('../utils/mongodb');
 
 const collection = 'users';
 
@@ -12,27 +12,27 @@ const RELATIONSHIP = {
 };
 
 exports.findOne = async (conditions) => {
-    const mongoClient = await MongoContext.getInstance();
+    const mongoClient = await Mongo.getInstance();
     return mongoClient.collection(collection).findOne(conditions);
 };
 
 exports.findById = async (uuid) => {
-    const mongoClient = await MongoContext.getInstance();
+    const mongoClient = await Mongo.getInstance();
     return mongoClient.collection(collection).findOne({ uuid });
 };
 
 exports.create = async (datas) => {
-    const mongoClient = await MongoContext.getInstance();
+    const mongoClient = await Mongo.getInstance();
     return mongoClient.collection(collection).insertOne(datas).then(res => res.ops[0]);
 };
 
 exports.update = async (conditions, data) => {
-    const mongoClient = await MongoContext.getInstance();
+    const mongoClient = await Mongo.getInstance();
     return mongoClient.collection(collection).update(conditions, { $set: data });
 };
 
 exports.findOneWithRelation = async (conditions, relation) => {
-    const mongoClient = await MongoContext.getInstance();
+    const mongoClient = await Mongo.getInstance();
     return mongoClient.collection(collection).aggregate([
         { $lookup: RELATIONSHIP[relation] },
         { $match: conditions }

@@ -3,7 +3,7 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cors = require('cors');
-const mongodb = require('./models/mongodb');
+const mongodb = require('./utils/mongodb');
 
 const apiGuard = require('./middlewares/request-handler/api_guard');
 const rateLimiter = require('./utils/rate_limiter');
