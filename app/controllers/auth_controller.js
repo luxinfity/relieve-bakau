@@ -2,18 +2,19 @@
 
 const { OAuth2Client } = require('google-auth-library');
 
-const { httpResponse, exception } = require('../utils/helpers');
+const { httpResponse } = require('../utils/helpers');
 const User = require('../models/user_model');
 const Config = require('../config/jwt');
 const UserTransformer = require('../utils/transformers/user_transformer');
+const HttpException = require('../utils/http_exception');
 
 exports.register = async (req, res, next) => {
     try {
         let user = await User.findOne({ email: req.body.email });
-        if (user) throw exception('email already exsist', 422);
+        if (user) throw HttpException.UnprocessableEntity('email already exsist');
 
         user = await User.findOne({ username: req.body.username });
-        if (user) throw exception('username already exsist', 422);
+        if (user) throw HttpException.UnprocessableEntity('username already exsist');
 
         const payload = UserTransformer.create(req.body);
         const newUser = await User.create(payload);
@@ -28,14 +29,15 @@ exports.register = async (req, res, next) => {
 
         return httpResponse(res, 'register successfull', 200, response);
     } catch (err) {
-        return next(err);
+        if (err.status) return next(err);
+        return next(HttpException.InternalServerError(err.message));
     }
 };
 
 exports.login = async (req, res, next) => {
     try {
         const user = await User.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], is_complete: true });
-        if (!user) throw exception('Credentials not match', 401);
+        if (!user) throw HttpException.NotAuthorized('Credentials not match');
 
         const { token, refresh: refreshToken } = await user.signIn(req.body.password);
         const response = {
@@ -46,14 +48,15 @@ exports.login = async (req, res, next) => {
 
         return httpResponse(res, 'login successfull', 200, response);
     } catch (err) {
-        return next(err);
+        if (err.status) return next(err);
+        return next(HttpException.InternalServerError(err.message));
     }
 };
 
 exports.refresh = async (req, res, next) => {
     try {
         const user = await User.findOne({ 'refresh_token.token': req.body.refresh_token });
-        if (!user) throw exception('Not Authorized', 401);
+        if (!user) throw HttpException.NotAuthorized('refresh token invalid');
 
         const token = await user.signByRefresh();
         const response = {
@@ -62,7 +65,8 @@ exports.refresh = async (req, res, next) => {
         };
         return httpResponse(res, 'token refreshed', 200, response);
     } catch (err) {
-        return next(err);
+        if (err.status) return next(err);
+        return next(HttpException.InternalServerError(err.message));
     }
 };
 
@@ -91,7 +95,8 @@ exports.googleCallback = async (req, res, next) => {
 
         return httpResponse(res, 'login successfull', 200, response);
     } catch (err) {
-        return next(err);
+        if (err.status) return next(err);
+        return next(HttpException.InternalServerError(err.message));
     }
 };
 

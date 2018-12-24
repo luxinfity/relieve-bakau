@@ -2,18 +2,18 @@ const config = require('../config/app');
 
 module.exports = (err, req, res, next) => {
     const {
-        message,
+        // message,
         status = 500,
-        detail = undefined
+        detail = 'something went wrong'
     } = err;
 
     let stack = err.stack;
     stack = stack && config.debug ? err.stack.split('\n').map(item => item.trim()) : undefined;
 
     return res.status(status).json({
-        message,
         status,
-        detail,
+        message: detail,
+        // detail,
         stack
     });
 };
