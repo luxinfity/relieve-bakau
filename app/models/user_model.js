@@ -1,9 +1,10 @@
 const { Schema, model } = require('mongoose');
 const uuid = require('uuid');
 const bcrypt = require('bcryptjs');
+const moment = require('moment');
 
 const Jwt = require('../utils/jwt');
-const exception = require('../utils/helpers').exception();
+const exception = require('../utils/helpers').exception;
 
 const ContactSchema = new Schema({
     number: {
@@ -71,7 +72,7 @@ const UserSchema = new Schema({
     }
 }, { versionKey: false });
 
-const sign = async (user) => {
+const createTokens = async (user) => {
     const token = await Jwt.create({ uid: user.uuid });
     const refresh = await Jwt.generateRefreshToken();
     return {
@@ -82,7 +83,7 @@ const sign = async (user) => {
 
 UserSchema.method({
     async sign() {
-        const { token, refresh } = await sign(this);
+        const { token, refresh } = await createTokens(this);
         await this.update({ refresh_token: { token: refresh.token, expired_at: refresh.validity } });
         return {
             token, refresh: refresh.token
@@ -90,11 +91,15 @@ UserSchema.method({
     },
     async signIn(password) {
         if (!bcrypt.compareSync(password, this.password)) throw exception('Credentials not match', 401);
-        const { token, refresh } = await sign(this);
+        const { token, refresh } = await createTokens(this);
         await this.update({ refresh_token: { token: refresh.token, expired_at: refresh.validity } });
         return {
             token, refresh: refresh.token
         };
+    },
+    signByRefresh() {
+        if (moment() > moment(this.refresh_token.expired_at)) throw exception('refresh token expired', 401);
+        return Jwt.create({ uid: this.uuid });
     }
 });
 
