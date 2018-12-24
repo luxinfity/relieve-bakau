@@ -1,7 +1,9 @@
 const { Schema, model } = require('mongoose');
 const uuid = require('uuid');
+const bcrypt = require('bcryptjs');
 
 const Jwt = require('../utils/jwt');
+const exception = require('../utils/helpers').exception();
 
 const ContactSchema = new Schema({
     number: {
@@ -69,10 +71,26 @@ const UserSchema = new Schema({
     }
 }, { versionKey: false });
 
+const sign = async (user) => {
+    const token = await Jwt.create({ uid: user.uuid });
+    const refresh = await Jwt.generateRefreshToken();
+    return {
+        token,
+        refresh
+    };
+};
+
 UserSchema.method({
-    async signIn() {
-        const token = await Jwt.create({ uid: this.uuid });
-        const refresh = await Jwt.generateRefreshToken();
+    async sign() {
+        const { token, refresh } = await sign(this);
+        await this.update({ refresh_token: { token: refresh.token, expired_at: refresh.validity } });
+        return {
+            token, refresh: refresh.token
+        };
+    },
+    async signIn(password) {
+        if (!bcrypt.compareSync(password, this.password)) throw exception('Credentials not match', 401);
+        const { token, refresh } = await sign(this);
         await this.update({ refresh_token: { token: refresh.token, expired_at: refresh.validity } });
         return {
             token, refresh: refresh.token

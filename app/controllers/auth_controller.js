@@ -1,7 +1,6 @@
 'use strict';
 
 // const { OAuth2Client } = require('google-auth-library');
-// const bcrypt = require('bcryptjs');
 // const moment = require('moment');
 
 const { apiResponse, exception } = require('../utils/helpers');
@@ -12,15 +11,15 @@ const UserTransformer = require('../utils/transformers/user_transformer');
 exports.register = async (req, res, next) => {
     try {
         let user = await User.findOne({ email: req.body.email });
-        if (user) return next(exception('email already exsist', 422));
+        if (user) throw exception('email already exsist', 422);
 
         user = await User.findOne({ username: req.body.username });
-        if (user) return next(exception('username already exsist', 422));
+        if (user) throw exception('username already exsist', 422);
 
         const payload = UserTransformer.create(req.body);
         const newUser = await User.create(payload);
 
-        const { token, refresh: refreshToken } = await newUser.signIn();
+        const { token, refresh: refreshToken } = await newUser.sign();
 
         const response = {
             token,
@@ -30,28 +29,28 @@ exports.register = async (req, res, next) => {
 
         return apiResponse(res, 'register successfull', 200, response);
     } catch (err) {
-        return next(exception(err.message));
+        return next(err);
     }
 };
 
-// exports.login = async (req, res, next) => {
-//     try {
-//         const user = await User.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], is_complete: true });
-//         if (!user) return next(exception('Credentials not match', 401));
-//         if (!bcrypt.compareSync(req.body.password, user.password)) return next(exception('Credentials not match', 401));
+exports.login = async (req, res, next) => {
+    try {
+        const user = await User.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], is_complete: true });
+        if (!user) throw exception('Credentials not match', 401);
 
-//         const { token, refresh } = await signUser(user);
-//         const response = {
-//             token,
-//             refresh_token: refresh.token,
-//             expires_in: Config.expired
-//         };
+        const { token, refresh: refreshToken } = await user.signIn(req.body.password);
 
-//         return apiResponse(res, 'login successfull', 200, response);
-//     } catch (err) {
-//         return next(exception(err.message));
-//     }
-// };
+        const response = {
+            token,
+            refresh_token: refreshToken,
+            expires_in: Config.expired
+        };
+
+        return apiResponse(res, 'login successfull', 200, response);
+    } catch (err) {
+        return next(err);
+    }
+};
 
 // exports.refresh = async (req, res, next) => {
 //     try {
