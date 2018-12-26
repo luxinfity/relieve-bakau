@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const moment = require('moment');
 
 const Jwt = require('../utils/jwt');
-const exception = require('../utils/helpers').exception;
+const HttpException = require('../utils/http_exception');
 
 const ContactSchema = new Schema({
     number: {
@@ -88,7 +88,7 @@ UserSchema.method({
         };
     },
     async signIn(password) {
-        if (!bcrypt.compareSync(password, this.password)) throw exception('Credentials not match', 401);
+        if (!bcrypt.compareSync(password, this.password)) throw HttpException.NotAuthorized('Credentials not match');
         const { token, refresh } = await createTokens(this);
         await this.update({ refresh_token: { token: refresh.token, expired_at: refresh.validity } });
         return {
@@ -96,7 +96,7 @@ UserSchema.method({
         };
     },
     signByRefresh() {
-        if (moment() > moment(this.refresh_token.expired_at)) throw exception('refresh token expired', 401);
+        if (moment() > moment(this.refresh_token.expired_at)) throw HttpException.NotAuthorized('refresh token expired');
         return Jwt.create({ uid: this.uuid });
     }
 });
