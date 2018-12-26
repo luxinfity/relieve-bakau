@@ -1,5 +1,5 @@
 const Promise = require('bluebird');
-const { httpResponse, exception } = require('../utils/helpers');
+const { HttpResponse, exception } = require('../utils/helpers');
 const GMaps = require('../utils/gmaps');
 
 exports.discover = async (req, res, next) => {
@@ -10,7 +10,7 @@ exports.discover = async (req, res, next) => {
             .asPromise()
             .then(({ json: { results: places } }) => places.map(item => item.name)));
 
-        return httpResponse(res, 'success', result);
+        return HttpResponse(res, 'success', result);
     } catch (err) {
         return next(exception('an error occured', err.message, 500));
     }

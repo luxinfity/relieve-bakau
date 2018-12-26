@@ -1,6 +1,6 @@
 'use strict';
 
-const { httpResponse } = require('../utils/helpers');
+const { HttpResponse } = require('../utils/helpers');
 const User = require('../models/user_model');
 const Config = require('../config/jwt');
 const UserTransformer = require('../utils/transformers/user_transformer');
@@ -26,7 +26,7 @@ exports.register = async (req, res, next) => {
             expires_in: Config.expired
         };
 
-        return httpResponse(res, 'register success', response);
+        return HttpResponse(res, 'register success', response);
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));
@@ -45,7 +45,7 @@ exports.login = async (req, res, next) => {
             expires_in: Config.expired
         };
 
-        return httpResponse(res, 'login success', response);
+        return HttpResponse(res, 'login success', response);
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));
@@ -62,7 +62,7 @@ exports.refresh = async (req, res, next) => {
             new_token: token,
             expires_in: Config.expired
         };
-        return httpResponse(res, 'token refreshed', response);
+        return HttpResponse(res, 'token refreshed', response);
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));
@@ -97,7 +97,7 @@ exports.googleCallback = async (req, res, next) => {
             expires_in: Config.expired
         };
 
-        return httpResponse(res, 'auth success', response);
+        return HttpResponse(res, 'auth success', response);
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));

@@ -4,7 +4,11 @@ const uuid = require('uuid');
 const PositionSchema = new Schema({
     uuid: {
         type: String,
-        default: uuid.v4()
+        default: uuid.v4
+    },
+    user_id: {
+        type: String,
+        required: true
     },
     geograph: {
         type: {

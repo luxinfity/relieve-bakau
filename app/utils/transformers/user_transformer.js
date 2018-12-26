@@ -29,11 +29,31 @@ exports.googleCallback = payload => ({
     fullname: normalizeName(payload)
 });
 
+exports.completeRegister = payload => ({
+    ...payload,
+    phones: [{ number: payload.phone, status: 10 }], // set as primary phone
+    password: bcrypt.hashSync(payload.password, 8),
+    birthdate: moment(payload.birthdate).format('YYYY-MM-DD'),
+    is_complete: true
+});
+
+exports.updatePosition = (request) => {
+    const coordinates = request.body.coordinates.split(',').map(item => +item.trim());
+    return {
+        user_id: request.auth.uid,
+        geograph: {
+            type: 'Point',
+            coordinates
+        },
+        status: +request.body.status
+    };
+};
+
 exports.profile = user => ({
     fullname: user.fullname,
     username: user.username,
     email: user.email,
-    phone: user.phone,
+    phones: user.phones,
     birthdate: user.birthdate,
     is_complete: user.is_complete,
     gender: user.gender

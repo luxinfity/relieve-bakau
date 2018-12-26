@@ -1,6 +1,4 @@
-const bcrypt = require('bcryptjs');
-const moment = require('moment');
-const httpResponse = require('../utils/helpers').httpResponse;
+const HttpResponse = require('../utils/helpers').HttpResponse;
 const HttpException = require('../utils/http_exception');
 const User = require('../models/user_model');
 const Position = require('../models/position_model');
@@ -9,7 +7,7 @@ const UserTrans = require('../utils/transformers/user_transformer');
 exports.profile = async (req, res, next) => {
     try {
         const user = await User.findOne({ uuid: req.auth.uid });
-        return httpResponse(res, 'successy retrieved profile data', UserTrans.profile(user));
+        return HttpResponse(res, 'successy retrieved profile data', UserTrans.profile(user));
     } catch (err) {
         return next(HttpException.InternalServerError(err.message));
     }
@@ -20,15 +18,14 @@ exports.completeRegister = async (req, res, next) => {
         const user = await User.findOne({ uuid: req.auth.uid, is_complete: false });
         if (!user) throw HttpException.Forbidden('profile already completed');
 
-        const payload = {
-            ...req.body,
-            password: bcrypt.hashSync(req.body.password, 8),
-            birthdate: moment(req.body.birthdate).format('YYYY-MM-DD'),
-            is_complete: true
-        };
+        // will be improved later...
+        const check = await User.findOne({ username: req.body.username });
+        if (check) throw HttpException.UnprocessableEntity('username alerady exsist');
 
+        const payload = UserTrans.completeRegister(req.body);
         await user.update(payload);
-        return httpResponse(res, 'complete register success');
+
+        return HttpResponse(res, 'complete register success');
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));
@@ -37,12 +34,9 @@ exports.completeRegister = async (req, res, next) => {
 
 exports.updatePosition = async (req, res, next) => {
     try {
-        const payload = {
-            ...req.body,
-            user_id: req.auth.uid
-        };
+        const payload = UserTrans.updatePosition(req);
         await Position.create(payload);
-        return httpResponse(res, 'position and status updated');
+        return HttpResponse(res, 'position and status updated');
     } catch (err) {
         return next(HttpException.InternalServerError(err.message));
     }
@@ -54,7 +48,7 @@ exports.updateFcmToken = async (req, res, next) => {
             fcm_token: req.body.fcm_token
         };
         await User.update({ uuid: req.auth.uid }, payload);
-        return httpResponse(res, 'fcm created or updated');
+        return HttpResponse(res, 'fcm update success');
     } catch (err) {
         return next(HttpException.InternalServerError(err.message));
     }

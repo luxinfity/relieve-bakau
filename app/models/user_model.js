@@ -32,7 +32,7 @@ const RefreshTokenSchema = new Schema({
 const UserSchema = new Schema({
     uuid: {
         type: String,
-        default: uuid.v4()
+        default: uuid.v4
     },
     fullname: {
         type: String,
