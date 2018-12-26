@@ -13,8 +13,7 @@ const ContactSchema = new Schema({
     },
     status: {
         type: Number,
-        enum: [10, 20, 30],
-        default: 10,
+        enum: [10, 20],
         required: true
     }
 }, { versionKey: false, _id: false });
@@ -57,8 +56,7 @@ const UserSchema = new Schema({
     },
     gender: {
         type: String,
-        enum: ['m', 'f'],
-        required: true
+        enum: ['m', 'f']
     },
     is_complete: {
         type: Boolean,

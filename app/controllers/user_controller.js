@@ -9,7 +9,7 @@ const UserTrans = require('../utils/transformers/user_transformer');
 exports.profile = async (req, res, next) => {
     try {
         const user = await User.findOne({ uuid: req.auth.uid });
-        return httpResponse(res, 'successfully retrieved profile data', UserTrans.profile(user));
+        return httpResponse(res, 'successy retrieved profile data', UserTrans.profile(user));
     } catch (err) {
         return next(HttpException.InternalServerError(err.message));
     }
@@ -28,7 +28,7 @@ exports.completeRegister = async (req, res, next) => {
         };
 
         await user.update(payload);
-        return httpResponse(res, 'complete register successfull');
+        return httpResponse(res, 'complete register success');
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));

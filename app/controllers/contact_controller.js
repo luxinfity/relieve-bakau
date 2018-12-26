@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
 const { httpResponse, exception } = require('../utils/helpers');
-const GMaps = require('../utils/google_maps');
+const GMaps = require('../utils/gmaps');
 
 exports.discover = async (req, res, next) => {
     try {

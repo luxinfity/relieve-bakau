@@ -1,12 +1,11 @@
 'use strict';
 
-const { OAuth2Client } = require('google-auth-library');
-
 const { httpResponse } = require('../utils/helpers');
 const User = require('../models/user_model');
 const Config = require('../config/jwt');
 const UserTransformer = require('../utils/transformers/user_transformer');
 const HttpException = require('../utils/http_exception');
+const GAuth = require('../utils/gauth');
 
 exports.register = async (req, res, next) => {
     try {
@@ -27,7 +26,7 @@ exports.register = async (req, res, next) => {
             expires_in: Config.expired
         };
 
-        return httpResponse(res, 'register successfull', response);
+        return httpResponse(res, 'register success', response);
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));
@@ -46,7 +45,7 @@ exports.login = async (req, res, next) => {
             expires_in: Config.expired
         };
 
-        return httpResponse(res, 'login successfull', response);
+        return httpResponse(res, 'login success', response);
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));
@@ -73,16 +72,21 @@ exports.refresh = async (req, res, next) => {
 exports.googleCallback = async (req, res, next) => {
     try {
         const idToken = req.body.idToken;
-        const client = new OAuth2Client(process.env.FIREBASE_CLIENT_ID);
-        const ticket = await client.verifyIdToken({
-            idToken,
-            audience: process.env.FIREBASE_CLIENT_ID
-        });
-        const payload = ticket.getPayload();
+        const client = GAuth.getClient();
+
+        let ticket;
+        try {
+            ticket = await client.verifyIdToken({ idToken });
+        } catch (err) { // eslint-disable-line
+            throw HttpException.BadRequest('id token invalid');
+        }
+
+        const jwtPayload = ticket.getPayload();
+        const payload = UserTransformer.googleCallback(jwtPayload);
 
         let user = await User.findOne({ email: payload.email });
         if (!user) {
-            const newPayload = UserTransformer.create({ ...req.body.profile, email: payload.email }, { is_complete: false });
+            const newPayload = UserTransformer.create({ ...payload }, { is_complete: false });
             user = await User.create(newPayload);
         }
 
@@ -93,7 +97,7 @@ exports.googleCallback = async (req, res, next) => {
             expires_in: Config.expired
         };
 
-        return httpResponse(res, 'login successfull', response);
+        return httpResponse(res, 'auth success', response);
     } catch (err) {
         if (err.status) return next(err);
         return next(HttpException.InternalServerError(err.message));
