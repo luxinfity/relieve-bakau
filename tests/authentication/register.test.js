@@ -12,39 +12,56 @@ const user = {
     password: 'admin',
     gender: 'm',
     phone: '081245934153',
-    birthdate: '1995-12-12',
-    is_complete: true
+    birthdate: '1995-12-12'
 };
-const endpoint = '/login';
+const endpoint = '/register';
 
-test.serial('success login', async (t) => {
+test.serial('successfully register', async (t) => {
     await request(app).post(endpoint)
-        .send({ username: user.username, password: user.password })
         .set('secret', apiSecret)
+        .send({
+            fullname: 'relieve2',
+            email: 'user2@relieve.com',
+            username: 'relieve2',
+            password: 'admin',
+            gender: 'm',
+            phone: '081245934153',
+            birthdate: '1995-12-12'
+        })
         .then(({ status, body }) => {
             t.is(status, 200);
         });
+    await userModel.deleteOne({ username: 'relieve2' });
 });
 
-test.serial('return unautorized if try to login without api key', async (t) => {
+test.serial('return 422 if email already exsist', async (t) => {
     await request(app).post(endpoint)
-        .send({ username: '', password: 'admin' })
+        .set('secret', apiSecret)
+        .send({
+            ...user
+        })
         .then(({ status, body }) => {
-            t.is(status, 401);
+            t.is(status, 422);
         });
 });
 
-test.serial('return unautorized if credentials not match', async (t) => {
+test.serial('return 422 if username already exsist', async (t) => {
     await request(app).post(endpoint)
-        .send({ username: 'admin2', password: 'admin2' })
         .set('secret', apiSecret)
+        .send({
+            ...user,
+            email: 'test@mail.com'
+        })
         .then(({ status, body }) => {
-            t.is(status, 401);
+            t.is(status, 422);
         });
 });
 
 test.before('create test credential', async (t) => {
-    await userModel.create(user);
+    await userModel.create({
+        ...user,
+        is_complete: true
+    });
 });
 
 test.after.always('delete test credential', async (t) => {

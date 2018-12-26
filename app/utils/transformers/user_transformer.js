@@ -18,7 +18,7 @@ exports.create = (payload, { is_complete: isComplete } = { is_complete: true }) 
     uuid: uuid(),
     ...payload,
     phones: payload.phone ? [{ number: payload.phone, status: 10 }] : [], // set as primary phone
-    password: payload.password ? bcrypt.hashSync(payload.password, 8) : undefined,
+    password: payload.password,
     birthdate: payload.birthdate ? moment(payload.birthdate).format('YYYY-MM-DD') : undefined,
     is_complete: isComplete,
     fcm_token: null

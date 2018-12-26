@@ -27,8 +27,7 @@ exports.completeRegister = async (req, res, next) => {
 
         return HttpResponse(res, 'complete register success');
     } catch (err) {
-        if (err.status) return next(err);
-        return next(HttpException.InternalServerError(err.message));
+        return next(err);
     }
 };
 
@@ -47,7 +46,7 @@ exports.updateFcmToken = async (req, res, next) => {
         const payload = {
             fcm_token: req.body.fcm_token
         };
-        await User.update({ uuid: req.auth.uid }, payload);
+        await User.updateOne({ uuid: req.auth.uid }, payload);
         return HttpResponse(res, 'fcm update success');
     } catch (err) {
         return next(HttpException.InternalServerError(err.message));

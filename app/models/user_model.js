@@ -101,4 +101,10 @@ UserSchema.method({
     }
 });
 
+UserSchema.pre('save', async function (next) {
+    const user = this;
+    if (user.isModified('password')) user.password = bcrypt.hashSync(user.password, 10);
+    return next();
+});
+
 module.exports = model('User', UserSchema, 'users');

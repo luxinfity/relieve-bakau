@@ -28,8 +28,7 @@ exports.register = async (req, res, next) => {
 
         return HttpResponse(res, 'register success', response);
     } catch (err) {
-        if (err.status) return next(err);
-        return next(HttpException.InternalServerError(err.message));
+        return next(err);
     }
 };
 
@@ -47,8 +46,7 @@ exports.login = async (req, res, next) => {
 
         return HttpResponse(res, 'login success', response);
     } catch (err) {
-        if (err.status) return next(err);
-        return next(HttpException.InternalServerError(err.message));
+        return next(err);
     }
 };
 
@@ -64,8 +62,7 @@ exports.refresh = async (req, res, next) => {
         };
         return HttpResponse(res, 'token refreshed', response);
     } catch (err) {
-        if (err.status) return next(err);
-        return next(HttpException.InternalServerError(err.message));
+        return next(err);
     }
 };
 
@@ -99,8 +96,7 @@ exports.googleCallback = async (req, res, next) => {
 
         return HttpResponse(res, 'auth success', response);
     } catch (err) {
-        if (err.status) return next(err);
-        return next(HttpException.InternalServerError(err.message));
+        return next(err);
     }
 };
 
