@@ -1,8 +1,8 @@
 require('dotenv').config();
 const test = require('ava');
 const request = require('supertest');
-const app = require('../../app');
-const userModel = require('../../app/models/user_model');
+const app = require('../../../src/app');
+const userModel = require('../../../src/models/user_model');
 
 const apiSecret = process.env.API_SECRET;
 const user = {
