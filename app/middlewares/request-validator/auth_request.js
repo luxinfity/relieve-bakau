@@ -29,10 +29,7 @@ const schemas = {
     }),
     google: Joi.object({
         body: Joi.object({
-            idToken: Joi.string().required(),
-            profile: Joi.object({
-                fullname: Joi.string().min(4).max(50).required()
-            }).required()
+            idToken: Joi.string().required()
         }).required()
     })
 };

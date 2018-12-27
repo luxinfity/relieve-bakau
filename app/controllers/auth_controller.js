@@ -1,101 +1,102 @@
-const { OAuth2Client } = require('google-auth-library');
-const bcrypt = require('bcryptjs');
-const moment = require('moment');
-const { apiResponse, exception } = require('../utils/helpers');
-const UserRepo = require('../repositories/user_repo');
+'use strict';
+
+const { HttpResponse } = require('../utils/helpers');
+const User = require('../models/user_model');
 const Config = require('../config/jwt');
-const { signUser } = require('../utils/adapters/auth');
-const RefreshTokenRepo = require('../repositories/refresh_token_repo');
 const UserTransformer = require('../utils/transformers/user_transformer');
+const HttpException = require('../utils/http_exception');
+const GAuth = require('../utils/gauth');
 
 exports.register = async (req, res, next) => {
     try {
-        let user = await UserRepo.findOne({ email: req.body.email });
-        if (user) return next(exception('email already exsist', 422));
+        let user = await User.findOne({ email: req.body.email });
+        if (user) throw HttpException.UnprocessableEntity('email already exsist');
 
-        user = await UserRepo.findOne({ username: req.body.username });
-        if (user) return next(exception('username already exsist', 422));
+        user = await User.findOne({ username: req.body.username });
+        if (user) throw HttpException.UnprocessableEntity('username already exsist');
 
         const payload = UserTransformer.create(req.body);
-        const newUser = await UserRepo.create(payload);
+        const newUser = await User.create(payload);
 
-        const { token, refresh } = await signUser(newUser);
+        const { token, refresh: refreshToken } = await newUser.sign();
+
         const response = {
             token,
-            refresh_token: refresh.token,
+            refresh_token: refreshToken,
             expires_in: Config.expired
         };
 
-        return apiResponse(res, 'register successfull', 200, response);
+        return HttpResponse(res, 'register success', response);
     } catch (err) {
-        return next(exception(err.message));
+        return next(err);
     }
 };
 
 exports.login = async (req, res, next) => {
     try {
-        const user = await UserRepo.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], is_complete: true });
-        if (!user) return next(exception('Credentials not match', 401));
-        if (!bcrypt.compareSync(req.body.password, user.password)) return next(exception('Credentials not match', 401));
+        const user = await User.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], is_complete: true });
+        if (!user) throw HttpException.NotAuthorized('Credentials not match');
 
-        const { token, refresh } = await signUser(user);
+        const { token, refresh: refreshToken } = await user.signIn(req.body.password);
         const response = {
             token,
-            refresh_token: refresh.token,
+            refresh_token: refreshToken,
             expires_in: Config.expired
         };
 
-        return apiResponse(res, 'login successfull', 200, response);
+        return HttpResponse(res, 'login success', response);
     } catch (err) {
-        return next(exception(err.message));
+        return next(err);
     }
 };
 
 exports.refresh = async (req, res, next) => {
     try {
-        const refreshToken = await RefreshTokenRepo.findOne({ token: req.body.refresh_token });
-        if (!refreshToken) return next(exception('Not Authorized', 401));
-        if (moment() > moment(refreshToken.expired_at)) return next(exception('refresh token expired', 401));
+        const user = await User.findOne({ 'refresh_token.token': req.body.refresh_token });
+        if (!user) throw HttpException.NotAuthorized('refresh token invalid');
 
-        const user = await UserRepo.findById(refreshToken.user_id);
-        const { token } = await signUser(user, { withRefresh: false });
-
+        const token = await user.signByRefresh();
         const response = {
             new_token: token,
             expires_in: Config.expired
         };
-        return apiResponse(res, 'refresh token successfull', 200, response);
+        return HttpResponse(res, 'token refreshed', response);
     } catch (err) {
-        return next(exception(err.message));
+        return next(err);
     }
 };
 
 exports.googleCallback = async (req, res, next) => {
     try {
         const idToken = req.body.idToken;
-        const client = new OAuth2Client(process.env.FIREBASE_CLIENT_ID);
-        const ticket = await client.verifyIdToken({
-            idToken,
-            audience: process.env.FIREBASE_CLIENT_ID
-        });
-        const payload = ticket.getPayload();
+        const client = GAuth.getClient();
 
-        let user = await UserRepo.findOne({ email: payload.email });
-        if (!user) {
-            const newPayload = UserTransformer.create({ ...req.body.profile, email: payload.email }, { is_complete: false });
-            user = await UserRepo.create(newPayload);
+        let ticket;
+        try {
+            ticket = await client.verifyIdToken({ idToken });
+        } catch (err) { // eslint-disable-line
+            throw HttpException.BadRequest('id token invalid');
         }
 
-        const { token, refresh } = await signUser(user);
+        const jwtPayload = ticket.getPayload();
+        const payload = UserTransformer.googleCallback(jwtPayload);
+
+        let user = await User.findOne({ email: payload.email });
+        if (!user) {
+            const newPayload = UserTransformer.create({ ...payload }, { is_complete: false });
+            user = await User.create(newPayload);
+        }
+
+        const { token, refresh: refreshToken } = await user.sign();
         const response = {
             token,
-            refresh_token: refresh.token,
+            refresh_token: refreshToken,
             expires_in: Config.expired
         };
 
-        return apiResponse(res, 'login successfull', 200, response);
+        return HttpResponse(res, 'auth success', response);
     } catch (err) {
-        return next(exception('an error occured', 500, err.message));
+        return next(err);
     }
 };
 

@@ -3,15 +3,11 @@
   "version": "1.0.1",
   "private": true,
   "scripts": {
+    "start": "node ./server.js",
     "dev": "nodemon ./server.js",
-    "server": "node ./server.js",
     "clean-install": "rm -rf node_modules package-lock.json && npm install --save",
-    "migrate": "./scripts/migrations/migrate.sh",
-    "migrate:rollback": "./scripts/migrations/rollback.sh",
-    "migrate:refresh": "./scripts/migrations/refresh.sh",
-    "db:seed": "./scripts/migrations/seed.sh",
-    "tests": "NODE_ENV=test nyc --reporter=html --reporter=text ava --verbose",
-    "tests-report": "open coverage/index.html",
+    "test": "NODE_ENV=test nyc --reporter=html --reporter=text ava --verbose",
+    "test-report": "open coverage/index.html",
     "lint": "eslint --fix app/**"
   },
   "dependencies": {
@@ -32,7 +28,7 @@
     "mime": ">=1.4.1",
     "moment": "^2.21.0",
     "mongodb": "^3.1.10",
-    "mongoose": "^5.2.7",
+    "mongoose": "^5.4.0",
     "morgan": "~1.9.0",
     "mysql2": "^1.5.2",
     "randomstring": "^1.1.5",

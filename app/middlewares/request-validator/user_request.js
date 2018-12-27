@@ -14,13 +14,10 @@ const schemas = {
             gender: Joi.string().valid('m', 'f').required()
         }).required()
     }),
-    updateLocation: Joi.object({
+    updatePosition: Joi.object({
         body: Joi.object({
-            location: Joi.object({
-                type: Joi.string().default('Point').valid('Point'),
-                coordinates: Joi.array().items(Joi.number().required()).min(2).max(2)
-            }).required(),
-            status: Joi.number().integer().valid(0, 10, 20).required()
+            coordinates: Joi.string().required(),
+            status: Joi.number().integer().valid(10, 20, 30).required()
         }).required()
     }),
     updateFcmToken: Joi.object({

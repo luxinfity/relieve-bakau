@@ -7,7 +7,7 @@ exports.create = async credentials => JWT.sign(credentials, Config.secret, { exp
 
 exports.verify = async token => JWT.verify(token, Config.secret);
 
-exports.generateRefreshToken = async () => ({
+exports.generateRefreshToken = () => ({
     token: RandomString.generate({ length: 50 }),
     validity: Moment().add(Config.refresh_token_expired, 'seconds').format()
 });

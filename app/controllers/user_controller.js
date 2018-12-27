@@ -1,49 +1,43 @@
-const bcrypt = require('bcryptjs');
-const moment = require('moment');
-const { apiResponse, exception } = require('../utils/helpers');
-const UserRepo = require('../repositories/user_repo');
-const Location = require('../repositories/location_history_repo');
+const HttpResponse = require('../utils/helpers').HttpResponse;
+const HttpException = require('../utils/http_exception');
+const User = require('../models/user_model');
+const Position = require('../models/position_model');
 const UserTrans = require('../utils/transformers/user_transformer');
 
 exports.profile = async (req, res, next) => {
     try {
-        const user = await UserRepo.findById(req.auth.uid);
-        const response = UserTrans.profile(user);
-        return apiResponse(res, 'successfully retrieved profile data', 200, response);
+        const user = await User.findOne({ uuid: req.auth.uid });
+        return HttpResponse(res, 'successy retrieved profile data', UserTrans.profile(user));
     } catch (err) {
-        return next(exception(err.message));
+        return next(HttpException.InternalServerError(err.message));
     }
 };
 
 exports.completeRegister = async (req, res, next) => {
     try {
-        const user = await UserRepo.findOne({ uuid: req.auth.uid, is_complete: false });
-        if (!user) return next(exception('profile already completed', 403));
+        const user = await User.findOne({ uuid: req.auth.uid, is_complete: false });
+        if (!user) throw HttpException.Forbidden('profile already completed');
 
-        const payload = {
-            ...req.body,
-            password: bcrypt.hashSync(req.body.password, 8),
-            birthdate: moment(req.body.birthdate).format('YYYY-MM-DD'),
-            is_complete: true
-        };
-        await UserRepo.update({ uuid: req.auth.uid }, payload);
+        // will be improved later...
+        const check = await User.findOne({ username: req.body.username });
+        if (check) throw HttpException.UnprocessableEntity('username alerady exsist');
 
-        return apiResponse(res, 'complete register successfull', 200);
+        const payload = UserTrans.completeRegister(req.body);
+        await user.update(payload);
+
+        return HttpResponse(res, 'complete register success');
     } catch (err) {
-        return next(exception(err.message));
+        return next(err);
     }
 };
 
-exports.updateLocation = async (req, res, next) => {
+exports.updatePosition = async (req, res, next) => {
     try {
-        const payload = {
-            ...req.body,
-            user_id: req.auth.uid
-        };
-        await Location.create(payload);
-        return apiResponse(res, 'location and status updated', 201);
+        const payload = UserTrans.updatePosition(req);
+        await Position.create(payload);
+        return HttpResponse(res, 'position and status updated');
     } catch (err) {
-        return next(exception('an error occured', 500, err.message));
+        return next(HttpException.InternalServerError(err.message));
     }
 };
 
@@ -52,10 +46,10 @@ exports.updateFcmToken = async (req, res, next) => {
         const payload = {
             fcm_token: req.body.fcm_token
         };
-        await UserRepo.update({ uuid: req.auth.uid }, payload);
-        return apiResponse(res, 'fcm created/updated', 200);
+        await User.updateOne({ uuid: req.auth.uid }, payload);
+        return HttpResponse(res, 'fcm update success');
     } catch (err) {
-        return next(exception('an error occured', 500, err.message));
+        return next(HttpException.InternalServerError(err.message));
     }
 };
 
