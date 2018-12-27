@@ -5,7 +5,6 @@ const app = require('./app');
 
 const server = http.createServer(app);
 const port = parseInt(process.env.APP_PORT, 10) || 3000;
-
 const onError = (error) => {
     if (error.syscall !== 'listen') throw error;
 
@@ -15,11 +14,11 @@ const onError = (error) => {
 
     switch (error.code) {
     case 'EACCES':
-        console.error(`${bind} requires elevated privileges`);
+        console.error(`${bind} requires elevated privileges`); // eslint-disable-line
         process.exit(1);
         break;
     case 'EADDRINUSE':
-        console.error(`${bind} is already in use`);
+        console.error(`${bind} is already in use`); // eslint-disable-line
         process.exit(1);
         break;
     default:
@@ -32,7 +31,7 @@ const onListening = () => {
     const bind = typeof addr === 'string'
         ? `pipe ${addr}`
         : `port ${addr.port}`;
-    console.log(`Listening on ${bind}`);
+    console.log(`Listening on ${bind}`); // eslint-disable-line
 };
 
 app.set('port', port);
