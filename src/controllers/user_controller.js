@@ -1,7 +1,6 @@
 const HttpResponse = require('../utils/helpers').HttpResponse;
 const HttpError = require('../utils/http_error');
 const User = require('../models/user_model');
-const Position = require('../models/position_model');
 const UserTrans = require('../utils/transformers/user_transformer');
 
 exports.profile = async (req, res, next) => {
@@ -9,7 +8,7 @@ exports.profile = async (req, res, next) => {
         const user = await User.findOne({ uuid: req.auth.uid });
         return HttpResponse(res, 'successy retrieved profile data', UserTrans.profile(user));
     } catch (err) {
-        return next(HttpError.InternalServerError(err.message));
+        return next(err);
     }
 };
 
@@ -31,16 +30,6 @@ exports.completeRegister = async (req, res, next) => {
     }
 };
 
-exports.updatePosition = async (req, res, next) => {
-    try {
-        const payload = UserTrans.updatePosition(req);
-        await Position.create(payload);
-        return HttpResponse(res, 'position and status updated');
-    } catch (err) {
-        return next(HttpError.InternalServerError(err.message));
-    }
-};
-
 exports.updateFcmToken = async (req, res, next) => {
     try {
         const payload = {
@@ -49,7 +38,7 @@ exports.updateFcmToken = async (req, res, next) => {
         await User.updateOne({ uuid: req.auth.uid }, payload);
         return HttpResponse(res, 'fcm update success');
     } catch (err) {
-        return next(HttpError.InternalServerError(err.message));
+        return next(err);
     }
 };
 

@@ -1,13 +1,15 @@
-// const { HttpResponse, exception } = require('../utils/helpers');
-// const Position = require('../models/position_history_model');
+const { HttpResponse } = require('../utils/helpers');
+const Position = require('../models/position_model');
+const Trans = require('../utils/transformers/position_transformer');
 
-// exports.latest = async (req, res, next) => {
-//     try {
-//         const latestPositions = await Position.getAllLatest();
-//         return HttpResponse(res, 'latest position data retrieved', 200, latestPositions);
-//     } catch (err) {
-//         return next(exception('an error occured', 500, err.message));
-//     }
-// };
+exports.create = async (req, res, next) => {
+    try {
+        const payload = Trans.create(req);
+        await Position.create(payload);
+        return HttpResponse(res, 'position and status updated');
+    } catch (err) {
+        return next(err);
+    }
+};
 
-// module.exports = exports;
+module.exports = exports;
