@@ -4,16 +4,16 @@ const { HttpResponse } = require('../utils/helpers');
 const User = require('../models/user_model');
 const Config = require('../config/jwt');
 const UserTransformer = require('../utils/transformers/user_transformer');
-const HttpException = require('../utils/http_exception');
+const HttpError = require('../utils/http_error');
 const GAuth = require('../utils/gauth');
 
 exports.register = async (req, res, next) => {
     try {
         let user = await User.findOne({ email: req.body.email });
-        if (user) throw HttpException.UnprocessableEntity('email already exsist');
+        if (user) throw HttpError.UnprocessableEntity('email already exsist');
 
         user = await User.findOne({ username: req.body.username });
-        if (user) throw HttpException.UnprocessableEntity('username already exsist');
+        if (user) throw HttpError.UnprocessableEntity('username already exsist');
 
         const payload = UserTransformer.create(req.body);
         const newUser = await User.create(payload);
@@ -35,7 +35,7 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
     try {
         const user = await User.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], is_complete: true });
-        if (!user) throw HttpException.NotAuthorized('Credentials not match');
+        if (!user) throw HttpError.NotAuthorized('Credentials not match');
 
         const { token, refresh: refreshToken } = await user.signIn(req.body.password);
         const response = {
@@ -53,7 +53,7 @@ exports.login = async (req, res, next) => {
 exports.refresh = async (req, res, next) => {
     try {
         const user = await User.findOne({ 'refresh_token.token': req.body.refresh_token });
-        if (!user) throw HttpException.NotAuthorized('refresh token invalid');
+        if (!user) throw HttpError.NotAuthorized('refresh token invalid');
 
         const token = await user.signByRefresh();
         const response = {
@@ -75,7 +75,7 @@ exports.googleCallback = async (req, res, next) => {
         try {
             ticket = await client.verifyIdToken({ idToken });
         } catch (err) { // eslint-disable-line
-            throw HttpException.BadRequest('id token invalid');
+            throw HttpError.BadRequest('id token invalid');
         }
 
         const jwtPayload = ticket.getPayload();

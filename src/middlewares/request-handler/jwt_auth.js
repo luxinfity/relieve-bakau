@@ -1,15 +1,15 @@
 const JWT = require('../../utils/jwt');
-const HttpException = require('../../utils/http_exception');
+const HttpError = require('../../utils/http_error');
 
 module.exports = async (req, res, next) => {
     try {
         const token = req.headers.authorization;
-        if (!token) throw HttpException.NotAuthorized('Token Not Provided');
+        if (!token) throw HttpError.NotAuthorized('Token Not Provided');
         try {
             req.auth = await JWT.verify(token);
         } catch (err) {
             const message = err.message === 'jwt expired' ? 'Token Expired' : 'Invalid Token';
-            throw HttpException.NotAuthorized(message);
+            throw HttpError.NotAuthorized(message);
         }
         return next();
     } catch (err) {

@@ -1,8 +1,8 @@
 const config = require('../config/app');
-const HttpException = require('../utils/http_exception');
+const HttpError = require('../utils/http_error');
 
 module.exports = (err, req, res, next) => {
-    const errorInstance = err.status ? err : HttpException.InternalServerError(err.message);
+    const errorInstance = err.status ? err : HttpError.InternalServerError(err.message);
     const {
         status = 500,
         user_message: userMessage = 'something went wrong',

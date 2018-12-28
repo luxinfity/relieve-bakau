@@ -7,14 +7,16 @@ const errors = [
     { name: 'InternalServerError', statusCode: 500, message: 'Internal Server Error' }
 ];
 
-errors.forEach((e) => {
-    exports[e.name] = (userMessage, messageDetail) => {
-        const err = new Error(e.message);
-        err.status = e.statusCode;
-        err.user_message = userMessage;
-        if (messageDetail) err.message_detail = messageDetail;
-        return err;
-    };
-});
+exports.initialize = () => {
+    errors.forEach((e) => {
+        exports[e.name] = (userMessage, messageDetail) => {
+            const err = new Error(e.message);
+            err.status = e.statusCode;
+            err.user_message = userMessage;
+            if (messageDetail) err.message_detail = messageDetail;
+            return err;
+        };
+    });
+};
 
 module.exports = exports;
