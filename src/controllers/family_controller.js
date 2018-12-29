@@ -70,4 +70,18 @@ exports.list = async (req, res, next) => {
     }
 };
 
+exports.update = async (req, res, next) => {
+    try {
+        const family = await Family.findOne({ uuid: req.params.uuid });
+        if (!family) throw HttpError.BadRequest('family not found');
+
+        const payload = { ...req.body };
+        await family.update(payload);
+
+        return HttpResponse(res, 'family updated');
+    } catch (err) {
+        return next(err);
+    }
+};
+
 module.exports = exports;

@@ -15,6 +15,15 @@ const schemas = {
             username: Joi.string().required(),
             code: Joi.string().required()
         }).required()
+    }),
+    update: Joi.object({
+        params: Joi.object({
+            uuid: Joi.string().required()
+        }).required(),
+        body: Joi.object({
+            nick: Joi.string(),
+            role: Joi.string()
+        }).required()
     })
 };
 
