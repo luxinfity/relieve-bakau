@@ -1,3 +1,5 @@
+'use strict';
+
 const { HttpResponse } = require('../utils/helpers');
 const Position = require('../models/position_model');
 const Trans = require('../utils/transformers/position_transformer');

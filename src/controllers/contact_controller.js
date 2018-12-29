@@ -1,3 +1,5 @@
+'use strict';
+
 const Promise = require('bluebird');
 const { HttpResponse, exception } = require('../utils/helpers');
 const GMaps = require('../utils/gmaps');

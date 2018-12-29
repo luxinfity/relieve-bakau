@@ -1,3 +1,5 @@
+'use strict';
+
 const HttpResponse = require('../utils/helpers').HttpResponse;
 const HttpError = require('../utils/http_error');
 const User = require('../models/user_model');
