@@ -18,4 +18,15 @@ exports.familyRequest = (request, person) => ({
     status: 10
 });
 
+exports.familyList = families => families.map(person => ({
+    uuid: person.uuid,
+    fullname: person.family.fullname,
+    nick: person.nick,
+    role: person.role,
+    condition: {
+        status: person.condition && person.condition.status,
+        location: person.condition && person.condition.geograph.coordinates.join(',')
+    }
+}));
+
 module.exports = exports;

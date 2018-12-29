@@ -11,13 +11,15 @@ const { FAMILIY_REQUEST_STATUS: STATUS } = require('../utils/constant');
 const pairUsers = async userIds => Promise.map(userIds, (uid) => {
     const jobs = [];
     userIds.forEach((pid) => {
-        if (uid !== pid) jobs.push(Family.updateOne({ user_id: uid }, { 'family.id': pid }, { upsert: true, setDefaultsOnInsert: true }));
+        if (uid !== pid) jobs.push(Family.updateOne({ user_id: uid, family_id: pid }, { family_id: pid }, { upsert: true, setDefaultsOnInsert: true }));
     });
     return Promise.all(jobs);
 }, { concurrency: 10 });
 
 exports.createRequest = async (req, res, next) => {
     try {
+        // TODO: check family limit
+
         const person = await User.findOne({ username: req.body.username });
         if (!person) throw HttpError.BadRequest('requested person not found');
 
@@ -26,9 +28,13 @@ exports.createRequest = async (req, res, next) => {
         const check = await Family.findOne({ user_id: req.auth.uid, 'family.id': person.uuid });
         if (check) throw HttpError.BadRequest('person already in family list');
 
-        await FamilyRequest.create(Trans.familyRequest(req, person));
+        await FamilyRequest.updateOne(
+            { requestor_id: req.auth.uid, target_id: person.uuid },
+            Trans.familyRequest(req, person),
+            { upsert: true, setDefaultsOnInsert: true }
+        );
 
-        // notify target
+        // TODO: notify requested target
 
         return HttpResponse(res, 'family request sent');
     } catch (err) {
@@ -49,6 +55,16 @@ exports.verifyRequest = async (req, res, next) => {
         await Promise.join(request.update({ status: STATUS.VERIFIED }), pairUsers([req.auth.uid, request.target_id]));
 
         return HttpResponse(res, 'family request verified');
+    } catch (err) {
+        return next(err);
+    }
+};
+
+exports.list = async (req, res, next) => {
+    try {
+        const families = await Family.find({ user_id: req.auth.uid }).populate('family', 'fullname').populate('condition');
+        const transformed = Trans.familyList(families);
+        return HttpResponse(res, 'family list retrieved', transformed);
     } catch (err) {
         return next(err);
     }
