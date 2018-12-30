@@ -9,7 +9,10 @@ const FAMILIY_CONDITION_STATUS = {
     NOT_OKAY: 30
 };
 
+const EMERGENCY_CONTACT_TYPES = ['police', 'fire_station', 'hospital'];
+
 module.exports = {
     FAMILIY_REQUEST_STATUS,
-    FAMILIY_CONDITION_STATUS
+    FAMILIY_CONDITION_STATUS,
+    EMERGENCY_CONTACT_TYPES
 };
