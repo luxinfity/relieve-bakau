@@ -1,6 +1,6 @@
 const RateLimit = require('express-rate-limit');
 const config = require('../config/app');
-const { exception } = require('../utils/helpers');
+const HttpError = require('../utils/http_error');
 
 module.exports = (max = config.rate.max, retry = config.rate.retry) => {
     const rateLimiter = new RateLimit({
@@ -9,7 +9,7 @@ module.exports = (max = config.rate.max, retry = config.rate.retry) => {
         delayMs: 0,
         handler(req, res, next) {
             res.setHeader('Retry-After', Math.ceil(retry / 1000));
-            return next(exception(`limit reach, try again in ${Math.ceil(retry / 1000)} seconds`, 429, {
+            return next(HttpError.TooManyRequests(`limit reach, try again in ${Math.ceil(retry / 1000)} seconds`, 429, {
                 try_after: Math.ceil(retry / 1000)
             }));
         }
