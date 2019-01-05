@@ -3,7 +3,7 @@
 const Promise = require('bluebird');
 
 const { HttpResponse } = require('../utils/helpers');
-// const HttpError = require('../utils/http_error');
+const HttpError = require('../utils/http_error');
 const Address = require('../models/address_model');
 const Trans = require('../utils/transformers/address_transformer');
 const PlaceNearby = require('../utils/adapters/places');
@@ -58,6 +58,16 @@ exports.list = async (req, res, next) => {
     try {
         const addresses = await Address.find({ user_id: req.auth.uid });
         return HttpResponse(res, 'addresses retrieved', Trans.list(addresses));
+    } catch (err) {
+        return next(err);
+    }
+};
+
+exports.detail = async (req, res, next) => {
+    try {
+        const address = await Address.findOne({ user_id: req.auth.uid, uuid: req.params.id }).populate('emergency_contacts');
+        if (!address) throw HttpError('address not found');
+        return HttpResponse(res, 'address detail retrieved', Trans.detail(address));
     } catch (err) {
         return next(err);
     }

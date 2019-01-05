@@ -28,13 +28,4 @@ exports.discoverDetail = async (req, res, next) => {
     }
 };
 
-
-exports.list = async (req, res, next) => {
-    try {
-        return HttpResponse(res, 'emergency contacts retrieved', []);
-    } catch (err) {
-        return next(err);
-    }
-};
-
 module.exports = exports;

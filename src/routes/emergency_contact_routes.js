@@ -3,6 +3,5 @@ const EmergencyContactController = require('../controllers/emergency_contact_con
 
 router.get('/discover', EmergencyContactController.discover);
 router.get('/discover/:id', EmergencyContactController.discoverDetail);
-router.get('/:uuid', EmergencyContactController.list);
 
 module.exports = router;

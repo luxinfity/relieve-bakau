@@ -28,4 +28,12 @@ const AddressSchema = new Schema({
     }
 }, { versionKey: false });
 
+
+// Relation to emergency contact
+AddressSchema.virtual('emergency_contacts', {
+    ref: 'EmergencyContact',
+    localField: 'uuid',
+    foreignField: 'address_id'
+});
+
 module.exports = model('Address', AddressSchema, 'addresses');
