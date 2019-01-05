@@ -21,8 +21,8 @@ exports.discoverDetail = async (req, res, next) => {
     try {
         const { params } = req;
         const client = await GMaps.getClient();
-        const result = await client.place({ placeid: params.id, fields: [] }).asPromise();
-        return HttpResponse(res, 'success', result);
+        const { json: { result: data } } = await client.place({ placeid: params.id, fields: [] }).asPromise();
+        return HttpResponse(res, 'success', data);
     } catch (err) {
         return next(err);
     }

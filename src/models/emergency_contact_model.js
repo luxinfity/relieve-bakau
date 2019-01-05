@@ -19,7 +19,7 @@ const EmergencyContactSchema = new Schema({
         type: String,
         required: true
     },
-    number: {
+    phone: {
         type: String,
         required: true
     }
