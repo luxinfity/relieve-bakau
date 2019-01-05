@@ -6,7 +6,7 @@ const { HttpResponse } = require('../utils/helpers');
 const HttpError = require('../utils/http_error');
 const Address = require('../models/address_model');
 const Trans = require('../utils/transformers/address_transformer');
-const PlaceNearby = require('../utils/adapters/places');
+const Place = require('../utils/adapters/places');
 const GooglePlace = require('../models/place_model');
 const EmergencyContact = require('../models/emergency_contact_model');
 const { createNew, createFromPlace } = require('../utils/transformers/emergency_contact_transformer');
@@ -14,7 +14,7 @@ const { create } = require('../utils/transformers/google_place_transformer');
 
 const generateEmergencyContacts = async (address) => {
     const coordinates = address.geograph.coordinates.join();
-    const placesNearby = await PlaceNearby.placeNearby(coordinates, 1000);
+    const placesNearby = await Place.placeNearby(coordinates, 1500);
 
     // reduce places to object
     const placesReduced = await GooglePlace.find({ google_place_id: placesNearby.map(item => item.place_id) })
@@ -31,7 +31,7 @@ const generateEmergencyContacts = async (address) => {
         }
 
         // if not, get place detail from google and store place then create contact
-        return PlaceNearby.placeDetail(place.place_id)
+        return Place.placeDetail(place.place_id)
             .then((placeDetail) => {
                 // if place doesnt have phone number, abort creation
                 if (!placeDetail.international_phone_number) return null;
@@ -66,7 +66,7 @@ exports.list = async (req, res, next) => {
 exports.detail = async (req, res, next) => {
     try {
         const address = await Address.findOne({ user_id: req.auth.uid, uuid: req.params.id }).populate('emergency_contacts');
-        if (!address) throw HttpError('address not found');
+        if (!address) throw HttpError.NotFound('address not found');
         return HttpResponse(res, 'address detail retrieved', Trans.detail(address));
     } catch (err) {
         return next(err);

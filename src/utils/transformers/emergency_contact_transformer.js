@@ -12,4 +12,10 @@ exports.createNew = (place, type, address) => ({
     phone: place.international_phone_number.replace(/\s|-/g, '')
 });
 
+exports.show = data => ({
+    name: data.name,
+    type: data.type,
+    phone: data.phone
+});
+
 module.exports = exports;
