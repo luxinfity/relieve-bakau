@@ -1,0 +1,18 @@
+const FAMILIY_REQUEST_STATUS = {
+    WAITING_VERIFICATION: 10,
+    VERIFIED: 20
+};
+
+const FAMILIY_CONDITION_STATUS = {
+    NO_CONDIITION: 10,
+    OKAY: 20,
+    NOT_OKAY: 30
+};
+
+const EMERGENCY_CONTACT_TYPES = ['police', 'fire_station', 'hospital'];
+
+module.exports = {
+    FAMILIY_REQUEST_STATUS,
+    FAMILIY_CONDITION_STATUS,
+    EMERGENCY_CONTACT_TYPES
+};
