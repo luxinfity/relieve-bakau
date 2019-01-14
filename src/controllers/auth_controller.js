@@ -81,20 +81,24 @@ exports.googleCallback = async (req, res, next) => {
         const jwtPayload = ticket.getPayload();
         const payload = UserTransformer.googleCallback(jwtPayload);
 
+        let isLogin = true;
         let user = await User.findOne({ email: payload.email });
         if (!user) {
             const newPayload = UserTransformer.create({ ...payload }, { is_complete: false });
+            isLogin = !isLogin;
             user = await User.create(newPayload);
         }
 
         const { token, refresh: refreshToken } = await user.sign();
+        const action = isLogin ? 'login' : 'register';
         const response = {
             token,
             refresh_token: refreshToken,
-            expires_in: Config.expired
+            expires_in: Config.expired,
+            action
         };
 
-        return HttpResponse(res, 'auth success', response);
+        return HttpResponse(res, `${action} success`, response);
     } catch (err) {
         return next(err);
     }
