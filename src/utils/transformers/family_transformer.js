@@ -29,4 +29,10 @@ exports.familyList = families => families.map(person => ({
     }
 }));
 
+exports.requestList = requests => requests.map(request => ({
+    uuid: request.uuid,
+    fullname: request.requestor.fullname,
+    pair_code: request.pair_code
+}));
+
 module.exports = exports;
