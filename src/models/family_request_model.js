@@ -24,6 +24,13 @@ const FamilyRequestSchema = new Schema({
         required: true,
         default: 10
     }
-}, { versionKey: false });
+}, { versionKey: false, toJSON: { virtuals: true } });
+
+FamilyRequestSchema.virtual('requestor', {
+    ref: 'User',
+    localField: 'requestor_id',
+    foreignField: 'uuid',
+    justOne: true
+});
 
 module.exports = model('FamilyRequest', FamilyRequestSchema, 'family_requests');
