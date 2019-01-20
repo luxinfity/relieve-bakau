@@ -2,6 +2,8 @@
 
 const axios = require('axios');
 const moment = require('moment-timezone');
+const cheerio = require('cheerio');
+const superagent = require('superagent');
 
 const { HttpResponse } = require('../utils/helpers');
 const Config = require('../models/config');
@@ -46,7 +48,28 @@ exports.list = async (req, res, next) => {
 
 exports.reauth = async (req, res, next) => {
     try {
-        return HttpResponse(res, 'weather endpoint re-authenticated');
+        const authEndpoint = 'http://45.126.132.55:4444/api-auth/login/';
+        const agent = superagent.agent();
+        const sign = await agent.get(authEndpoint)
+            .then(({ text: html }) => {
+                const $ = cheerio.load(html);
+                const csrf = $('input[name="csrfmiddlewaretoken"]').val();
+                const payload = {
+                    username: process.env.WEATHER_USERNAME,
+                    password: process.env.WEATHER_PASSWORD,
+                    csrfmiddlewaretoken: csrf,
+                    next: '/'
+                };
+                return agent.post(authEndpoint)
+                    .type('form')
+                    .send(payload);
+            });
+
+        const sessionIdCookie = sign.req._headers.cookie.split(';')[1];
+        const sessionId = sessionIdCookie.split('=')[1];
+
+        await Config.updateOne({ key: 'weather_session_id' }, { value: sessionId }, { upsert: true, setDefaultsOnInsert: true });
+        return HttpResponse(res, 'weather endpoint re-authenticated', { session_id: sessionId });
     } catch (err) {
         return next(err);
     }

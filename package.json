@@ -16,6 +16,7 @@
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.3",
     "body-parser": "~1.18.2",
+    "cheerio": "^1.0.0-rc.2",
     "cors": "^2.8.4",
     "debug": "~2.6.9",
     "dotenv": "^5.0.1",
@@ -35,6 +36,7 @@
     "mysql2": "^1.5.2",
     "randomstring": "^1.1.5",
     "sequelize": "^4.35.2",
+    "superagent": "^4.1.0",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
