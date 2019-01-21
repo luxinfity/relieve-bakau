@@ -1,4 +1,5 @@
 const UserRoutes = require('../routes/user_route');
+const WeatherRoutes = require('../routes/weather_routes');
 const EmergencyContactRoutes = require('../routes/emergency_contact_routes');
 const AddressRoutes = require('../routes/address_route');
 const FamilyRoutes = require('../routes/family_route');
@@ -7,6 +8,7 @@ const AuthRoutes = require('../routes/auth_route');
 const JWTAuth = require('../middlewares/request-handler/jwt_auth');
 
 module.exports = (app) => {
+    app.use('/weather', WeatherRoutes);
     app.use('/family', JWTAuth, FamilyRoutes);
     app.use('/user', JWTAuth, UserRoutes);
     app.use('/position', JWTAuth, PositionRoutes);

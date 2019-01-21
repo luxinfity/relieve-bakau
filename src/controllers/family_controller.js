@@ -54,9 +54,24 @@ exports.verifyRequest = async (req, res, next) => {
         });
         if (!request) throw HttpError.BadRequest('family request not found or invalid');
 
-        await Promise.join(request.update({ status: STATUS.VERIFIED }), pairUsers([req.auth.uid, request.target_id]));
+        await Promise.join(
+            request.update({ status: STATUS.VERIFIED }),
+            pairUsers([req.auth.uid, request.target_id])
+        );
 
         return HttpResponse(res, 'family request verified');
+    } catch (err) {
+        return next(err);
+    }
+};
+
+exports.requestList = async (req, res, next) => {
+    try {
+        const requests = await FamilyRequest.find({
+            target_id: req.auth.uid, status: STATUS.WAITING_VERIFICATION
+        }).populate('requestor', 'fullname');
+
+        return HttpResponse(res, 'family request list retrieved', Trans.requestList(requests));
     } catch (err) {
         return next(err);
     }

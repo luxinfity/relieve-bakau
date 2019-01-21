@@ -104,7 +104,7 @@ UserSchema.method({
 
 UserSchema.pre('save', async function (next) {
     const user = this;
-    if (user.isModified('password')) user.password = bcrypt.hashSync(user.password, 10);
+    if (user.isModified('password') && user.password) user.password = bcrypt.hashSync(user.password, 10);
     return next();
 });
 
