@@ -15,9 +15,11 @@ const ENDPOINTS = {
     monthly: 'mothlydata'
 };
 
+const WEATHER_API_URL = 'http://45.126.132.55:4444';
+
 const getWeatherData = async (type) => {
     const { value: key } = await Config.findOne({ key: 'weather_session_id' });
-    return axios.get(`http://45.126.132.55:4444/${ENDPOINTS[type]}?format=json`, {
+    return axios.get(`${WEATHER_API_URL}/${ENDPOINTS[type]}?format=json`, {
         headers: {
             Cookie: `sessionid=${key}`
         }
@@ -33,7 +35,7 @@ const transformer = datas => datas.map(item => ({
         fahrenheit: +item.tempf
     },
     humidity: +item.humidity,
-    time: moment(item.time).tz('Asia/Jakarta').format('DD-MM-YYYY H:mm:ss')
+    time: moment(item.time).tz('Asia/Jakarta').format('DD-MM-YYYY HH:mm:ss')
 }));
 
 exports.list = async (req, res, next) => {
@@ -48,7 +50,7 @@ exports.list = async (req, res, next) => {
 
 exports.reauth = async (req, res, next) => {
     try {
-        const authEndpoint = 'http://45.126.132.55:4444/api-auth/login/';
+        const authEndpoint = `${WEATHER_API_URL}/api-auth/login/`;
         const agent = superagent.agent();
         const sign = await agent.get(authEndpoint)
             .then(({ text: html }) => {
