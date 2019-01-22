@@ -30,9 +30,9 @@ const transformer = datas => datas.map(item => ({
     id: item.ID,
     temperature: {
         celcius: +F2C(item.tempf).toFixed(2),
-        fahrenheit: item.tempf
+        fahrenheit: +item.tempf
     },
-    humidity: item.humidity,
+    humidity: +item.humidity,
     time: moment(item.time).tz('Asia/Jakarta').format('DD-MM-YYYY H:mm:ss')
 }));
 
