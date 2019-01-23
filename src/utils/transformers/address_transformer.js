@@ -1,11 +1,11 @@
 exports.create = ({ body, auth }) => {
-    const coordinates = body.coordinates.split(',').map(item => +item.trim());
+    const [lat, lng] = body.coordinates.split(',').map(item => +item.trim());
     return {
         name: body.name,
         user_id: auth.uid,
         geograph: {
             type: 'Point',
-            coordinates
+            coordinates: [lng, lat]
         }
     };
 };
