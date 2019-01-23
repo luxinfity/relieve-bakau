@@ -48,7 +48,26 @@ exports.list = async (req, res, next) => {
     }
 };
 
-exports.reauth = async (req, res, next) => {
+exports.auth = async (req, res, next) => {
+    try {
+        const { data } = await axios({
+            method: 'post',
+            url: `${WEATHER_API_URL}/o/token/`,
+            data: `grant_type=password&username=${process.env.WEATHER_API_USERNAME}&password=${process.env.WEATHER_API_PASSWORD}`,
+            auth: {
+                username: process.env.WEATHER_API_CLIENT_ID,
+                password: process.env.WEATHER_API_CLIENT_SECRET
+            }
+        });
+
+
+        return HttpResponse(res, 'weather endpoint re-authenticated', data);
+    } catch (err) {
+        return next(err);
+    }
+};
+
+exports.reAuthWeb = async (req, res, next) => {
     try {
         const authEndpoint = `${WEATHER_API_URL}/api-auth/login/`;
         const agent = superagent.agent();
@@ -57,8 +76,8 @@ exports.reauth = async (req, res, next) => {
                 const $ = cheerio.load(html);
                 const csrf = $('input[name="csrfmiddlewaretoken"]').val();
                 const payload = {
-                    username: process.env.WEATHER_USERNAME,
-                    password: process.env.WEATHER_PASSWORD,
+                    username: process.env.WEATHER_API_USERNAME,
+                    password: process.env.WEATHER_API_PASSWORD,
                     csrfmiddlewaretoken: csrf,
                     next: '/'
                 };
