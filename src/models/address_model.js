@@ -15,6 +15,10 @@ const AddressSchema = new Schema({
         type: String,
         required: true
     },
+    details: {
+        type: Object,
+        required: true
+    },
     geograph: {
         type: {
             type: String,

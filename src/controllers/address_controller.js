@@ -13,8 +13,8 @@ const { createNew, createFromPlace } = require('../utils/transformers/emergency_
 const { create } = require('../utils/transformers/google_place_transformer');
 
 const generateEmergencyContacts = async (address) => {
-    const coordinates = address.geograph.coordinates.join();
-    const placesNearby = await Place.placeNearby(coordinates, 1500);
+    const [lng, lat] = address.geograph.coordinates;
+    const placesNearby = await Place.placeNearby(`${lat}, ${lng}`, 1500);
 
     // reduce places to object
     const placesReduced = await GooglePlace.find({ google_place_id: placesNearby.map(item => item.place_id) })
@@ -45,10 +45,16 @@ const generateEmergencyContacts = async (address) => {
 
 exports.create = async (req, res, next) => {
     try {
-        const payload = Trans.create(req);
+        const [{ address_components: addressDetail = null }] = await Place.reverseGeocode(req.body.coordinates);
+
+        const payload = Trans.create(req, addressDetail);
+        const find = await Address.findOne({ 'geograph.coordinates': payload.geograph.coordinates });
+        if (find) throw HttpError.Forbidden('address already exsist');
+
         const address = await Address.create(payload);
         await generateEmergencyContacts(address);
-        return HttpResponse(res, 'address created');
+
+        return HttpResponse(res, 'address created', payload);
     } catch (err) {
         return next(err);
     }
