@@ -12,5 +12,5 @@ module.exports = (app) => {
     app.use('/position', JWTAuth, PositionRoutes);
     app.use('/emergency-contact', JWTAuth, EmergencyContactRoutes);
     app.use('/address', JWTAuth, AddressRoutes);
-    app.use('/', AuthRoutes);
+    app.use('/auth', AuthRoutes);
 };

@@ -104,4 +104,17 @@ exports.googleCallback = async (req, res, next) => {
     }
 };
 
+exports.paramCheck = async (req, res, next) => {
+    try {
+        const { param, value } = req.body;
+        const user = await User.findOne({ [param]: value });
+        const response = {
+            param, value, is_exsist: !!user
+        };
+        return HttpResponse(res, 'param check success', response);
+    } catch (err) {
+        return next(err);
+    }
+};
+
 module.exports = exports;

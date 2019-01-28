@@ -26,4 +26,14 @@ exports.placeDetail = async (placeId) => {
     }
 };
 
+exports.reverseGeocode = async (coordinates) => {
+    try {
+        const client = await GMaps.getClient();
+        const { json: { results: data } } = await client.geocode({ address: coordinates }).asPromise();
+        return data;
+    } catch (err) {
+        throw HttpError.InternalServerError(err.message);
+    }
+};
+
 module.exports = exports;

@@ -31,6 +31,12 @@ const schemas = {
         body: Joi.object({
             idToken: Joi.string().required()
         }).required()
+    }),
+    check: Joi.object({
+        body: Joi.object({
+            param: Joi.string().valid('username', 'email').required(),
+            value: Joi.string().required()
+        }).required()
     })
 };
 

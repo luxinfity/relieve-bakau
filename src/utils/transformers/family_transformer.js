@@ -18,16 +18,19 @@ exports.familyRequest = (request, person) => ({
     status: 10
 });
 
-exports.familyList = families => families.map(person => ({
-    uuid: person.uuid,
-    fullname: person.family.fullname,
-    nick: person.nick,
-    role: person.role,
-    condition: {
-        status: person.condition && person.condition.status,
-        location: person.condition && person.condition.geograph.coordinates.join(',')
-    }
-}));
+exports.familyList = families => families.map((person) => {
+    const [lng, lat] = person.condition.geograph.coordinates;
+    return ({
+        uuid: person.uuid,
+        fullname: person.family.fullname,
+        nick: person.nick,
+        role: person.role,
+        condition: {
+            status: person.condition.status,
+            location: `${lat}, ${lng}`
+        }
+    });
+});
 
 exports.requestList = requests => requests.map(request => ({
     uuid: request.uuid,

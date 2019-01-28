@@ -49,6 +49,9 @@ const UserSchema = new Schema({
     password: {
         type: String
     },
+    img_url: {
+        type: String
+    },
     birthdate: {
         type: Date
     },
