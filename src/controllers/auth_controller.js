@@ -1,21 +1,25 @@
 'use strict';
 
 const { HttpResponse } = require('../utils/helpers');
-const User = require('../models/mongodb/user_model');
-const Config = require('../config/jwt');
-const UserTransformer = require('../utils/transformers/user_transformer');
 const { HttpError } = require('../common');
+const Config = require('../config/jwt');
 const GAuth = require('../utils/gauth');
+
+const Repository = require('../repositories');
+const User = require('../models/mongodb/user_model');
+const { create, googleCallback } = require('../utils/transformers/user_transformer');
 
 exports.register = async (req, res, next) => {
     try {
-        let user = await User.findOne({ email: req.body.email });
+        const Repo = new Repository();
+        // let user = await Repo.get('user').findOne({ email: req.body.email });
+        let user = await Repo.get('user').findOne({ email: req.body.email });
         if (user) throw HttpError.UnprocessableEntity('email already exsist');
 
-        user = await User.findOne({ username: req.body.username });
+        user = await Repo.get('user').findOne({ username: req.body.username });
         if (user) throw HttpError.UnprocessableEntity('username already exsist');
 
-        const payload = UserTransformer.create(req.body);
+        const payload = create(req.body);
         const newUser = await User.create(payload);
 
         const { token, refresh: refreshToken } = await newUser.sign();
@@ -34,7 +38,9 @@ exports.register = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
     try {
-        const user = await User.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], is_complete: true });
+        const Repo = new Repository();
+
+        const user = await Repo.get('user').findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], is_complete: true });
         if (!user) throw HttpError.NotAuthorized('Credentials not match');
 
         const { token, refresh: refreshToken } = await user.signIn(req.body.password);
@@ -52,7 +58,9 @@ exports.login = async (req, res, next) => {
 
 exports.refresh = async (req, res, next) => {
     try {
-        const user = await User.findOne({ 'refresh_token.token': req.body.refresh_token });
+        const Repo = new Repository();
+
+        const user = await Repo.get('user').findOne({ 'refresh_token.token': req.body.refresh_token });
         if (!user) throw HttpError.NotAuthorized('refresh token invalid');
 
         const token = await user.signByRefresh();
@@ -79,12 +87,14 @@ exports.googleCallback = async (req, res, next) => {
         }
 
         const jwtPayload = ticket.getPayload();
-        const payload = UserTransformer.googleCallback(jwtPayload);
+        const payload = googleCallback(jwtPayload);
+
+        const Repo = new Repository();
 
         let isLogin = true;
-        let user = await User.findOne({ email: payload.email });
+        let user = await Repo.get('user').findOne({ email: payload.email });
         if (!user) {
-            const newPayload = UserTransformer.create({ ...payload }, { is_complete: false });
+            const newPayload = create({ ...payload }, { is_complete: false });
             isLogin = !isLogin;
             user = await User.create(newPayload);
         }
@@ -106,11 +116,14 @@ exports.googleCallback = async (req, res, next) => {
 
 exports.paramCheck = async (req, res, next) => {
     try {
+        const Repo = new Repository();
+
         const { param, value } = req.body;
-        const user = await User.findOne({ [param]: value });
+        const user = await Repo.get('user').findOne({ [param]: value });
         const response = {
             param, value, is_exsist: !!user
         };
+
         return HttpResponse(res, 'param check success', response);
     } catch (err) {
         return next(err);
