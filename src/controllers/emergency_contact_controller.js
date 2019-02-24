@@ -3,7 +3,7 @@
 const Promise = require('bluebird');
 const { HttpResponse } = require('../utils/helpers');
 const Place = require('../utils/adapters/places');
-const GooglePlace = require('../models/place_model');
+const GooglePlace = require('../models/mongodb/place_model');
 const EmergencyTrans = require('../utils/transformers/emergency_contact_transformer');
 const { create } = require('../utils/transformers/google_place_transformer');
 

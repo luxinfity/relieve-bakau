@@ -3,12 +3,12 @@
 const Promise = require('bluebird');
 
 const { HttpResponse } = require('../utils/helpers');
-const HttpError = require('../utils/http_error');
-const Address = require('../models/address_model');
+const { HttpError } = require('../common');
+const Address = require('../models/mongodb/address_model');
 const Trans = require('../utils/transformers/address_transformer');
 const Place = require('../utils/adapters/places');
-const GooglePlace = require('../models/place_model');
-const EmergencyContact = require('../models/emergency_contact_model');
+const GooglePlace = require('../models/mongodb/place_model');
+const EmergencyContact = require('../models/mongodb/emergency_contact_model');
 const { createNew, createFromPlace } = require('../utils/transformers/emergency_contact_transformer');
 const { create } = require('../utils/transformers/google_place_transformer');
 

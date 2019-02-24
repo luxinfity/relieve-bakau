@@ -3,10 +3,10 @@
 const Promise = require('bluebird');
 
 const { HttpResponse } = require('../utils/helpers');
-const HttpError = require('../utils/http_error');
-const User = require('../models/user_model');
-const Family = require('../models/family_model');
-const FamilyRequest = require('../models/family_request_model');
+const { HttpError } = require('../common');
+const User = require('../models/mongodb/user_model');
+const Family = require('../models/mongodb/family_model');
+const FamilyRequest = require('../models/mongodb/family_request_model');
 const Trans = require('../utils/transformers/family_transformer');
 const { FAMILIY_REQUEST_STATUS: STATUS } = require('../utils/constant');
 

@@ -1,10 +1,10 @@
 'use strict';
 
 const { HttpResponse } = require('../utils/helpers');
-const User = require('../models/user_model');
+const User = require('../models/mongodb/user_model');
 const Config = require('../config/jwt');
 const UserTransformer = require('../utils/transformers/user_transformer');
-const HttpError = require('../utils/http_error');
+const { HttpError } = require('../common');
 const GAuth = require('../utils/gauth');
 
 exports.register = async (req, res, next) => {

@@ -1,8 +1,8 @@
 'use strict';
 
 const HttpResponse = require('../utils/helpers').HttpResponse;
-const HttpError = require('../utils/http_error');
-const User = require('../models/user_model');
+const { HttpError } = require('../common');
+const User = require('../models/mongodb/user_model');
 const UserTrans = require('../utils/transformers/user_transformer');
 
 exports.profile = async (req, res, next) => {

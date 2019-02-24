@@ -1,5 +1,5 @@
 const config = require('../config/app');
-const HttpError = require('../utils/http_error');
+const { HttpError } = require('../common');
 
 module.exports = (err, req, res, next) => {
     const errorInstance = err.status ? err : HttpError.InternalServerError(err.message);

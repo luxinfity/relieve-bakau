@@ -1,7 +1,7 @@
 'use strict';
 
 const { HttpResponse } = require('../utils/helpers');
-const Position = require('../models/position_model');
+const Position = require('../models/mongodb/position_model');
 const Trans = require('../utils/transformers/position_transformer');
 
 exports.create = async (req, res, next) => {

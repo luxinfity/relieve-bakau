@@ -12,7 +12,7 @@ exports.initialize = async () => {
     models = {};
     const sequelize = new Sequelize(config.connection_string, config.options);
 
-    const modelsDir = path.join(__dirname, '../models/sequelize');
+    const modelsDir = path.join(__dirname, '../models/mongodb/sequelize');
     fs.readdirSync(modelsDir)
         .filter(file => (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js'))
         .forEach((file) => {

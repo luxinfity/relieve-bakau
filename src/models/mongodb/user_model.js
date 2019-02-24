@@ -3,8 +3,8 @@ const uuid = require('uuid');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
 
-const Jwt = require('../utils/jwt');
-const HttpError = require('../utils/http_error');
+const Jwt = require('../../utils/jwt');
+const { HttpError } = require('../../common');
 
 const ContactSchema = new Schema({
     number: {
