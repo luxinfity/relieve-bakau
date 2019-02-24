@@ -24,7 +24,6 @@ exports.completeRegister = async (req, res, next) => {
         const user = await Repo.get('user').findOne({ uuid: req.auth.uid, is_complete: false });
         if (!user) throw HttpError.Forbidden('profile already completed');
 
-        // will be improved later...
         const check = await Repo.get('user').findOne({ username: req.body.username });
         if (check) throw HttpError.UnprocessableEntity('username alerady exsist');
 

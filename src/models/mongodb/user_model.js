@@ -86,7 +86,7 @@ const createTokens = async (user) => {
 UserSchema.method({
     async sign() {
         const { token, refresh } = await createTokens(this);
-        await this.update({ refresh_token: { token: refresh.token, expired_at: refresh.validity } });
+        await this.updateOne({ refresh_token: { token: refresh.token, expired_at: refresh.validity } });
         return {
             token, refresh: refresh.token
         };
@@ -94,7 +94,7 @@ UserSchema.method({
     async signIn(password) {
         if (!bcrypt.compareSync(password, this.password)) throw HttpError.NotAuthorized('Credentials not match');
         const { token, refresh } = await createTokens(this);
-        await this.update({ refresh_token: { token: refresh.token, expired_at: refresh.validity } });
+        await this.updateOne({ refresh_token: { token: refresh.token, expired_at: refresh.validity } });
         return {
             token, refresh: refresh.token
         };
