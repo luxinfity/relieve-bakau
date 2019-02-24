@@ -90,24 +90,26 @@ exports.googleCallback = async (req, res, next) => {
 
         const Repo = new Repository();
 
-        let isLogin = true;
-        let user = await Repo.get('user').findOne({ email: payload.email });
-        if (!user) {
-            const newPayload = create({ ...payload }, { is_complete: false });
-            isLogin = !isLogin;
-            user = await Repo.get('user').create(newPayload);
+        const user = await Repo.get('user').findOne({ email: payload.email });
+        let action = 'login';
+
+        /** if user already registered, authenticate user */
+        if (user) {
+            const { token, refresh: refreshToken } = await user.sign();
+            return HttpResponse(res, `${action} success`, {
+                token,
+                refresh_token: refreshToken,
+                expires_in: Config.expired,
+                action
+            });
         }
 
-        const { token, refresh: refreshToken } = await user.sign();
-        const action = isLogin ? 'login' : 'register';
-        const response = {
-            token,
-            refresh_token: refreshToken,
-            expires_in: Config.expired,
+        /** if not registered, return basic info for registration */
+        action = 'register';
+        return HttpResponse(res, `redirect to ${action}`, {
+            ...payload,
             action
-        };
-
-        return HttpResponse(res, `${action} success`, response);
+        });
     } catch (err) {
         return next(err);
     }
