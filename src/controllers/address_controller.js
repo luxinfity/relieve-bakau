@@ -12,6 +12,7 @@ const { create } = require('../utils/transformers/google_place_transformer');
 const { create: createAddress, list: addressList, detail } = require('../utils/transformers/address_transformer');
 
 const RADIUS = 1500; // meters
+const ADDRESS_MIN_RADIUS = 50;
 
 const generateEmergencyContacts = async (address) => {
     const Repo = new Repository();
@@ -52,12 +53,14 @@ exports.create = async (req, res, next) => {
         const [{ address_components: addressDetail = null }] = await Place.reverseGeocode(req.body.coordinates);
 
         const payload = createAddress(req, addressDetail);
-        const find = await Repo.get('address').findOne({ 'geograph.coordinates': payload.geograph.coordinates });
+
+        /** check if address already exsist by distance */
+        const find = await Repo.get('address').findNearby({ user_id: req.auth.uid }, payload.geograph.coordinates, ADDRESS_MIN_RADIUS);
         if (find) throw HttpError.Forbidden('address already exsist');
 
         const address = await Repo.get('address').create(payload);
 
-        // should be async or queued
+        /** should be async or queued */
         await generateEmergencyContacts(address);
 
         return HttpResponse(res, 'address created', payload);

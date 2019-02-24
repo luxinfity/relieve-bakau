@@ -8,8 +8,9 @@ const Repository = require('../repositories');
 
 const EmergencyTrans = require('../utils/transformers/emergency_contact_transformer');
 const { create } = require('../utils/transformers/google_place_transformer');
+const { address_components: components } = require('../utils/transformers/address_transformer');
 
-exports.discover = async (req, res, next) => {
+exports.places = async (req, res, next) => {
     try {
         const result = await Place.placeNearby(req.body.coordinates, req.body.radius);
         return HttpResponse(res, 'nearby places retrieved', result);
@@ -18,7 +19,7 @@ exports.discover = async (req, res, next) => {
     }
 };
 
-exports.discoverDetail = async (req, res, next) => {
+exports.placesDetail = async (req, res, next) => {
     try {
         const result = await Place.placeDetail(req.params.id);
         return HttpResponse(res, 'place detail retrieved', result);
@@ -27,11 +28,11 @@ exports.discoverDetail = async (req, res, next) => {
     }
 };
 
-exports.nearby = async (req, res, next) => {
+exports.nearbyContacts = async (req, res, next) => {
     try {
         const Repo = new Repository();
 
-        const places = await Place.placeNearby(req.body.coordinates, req.body.radius);
+        const places = await Place.placeNearby(req.query.coordinates, req.query.radius);
         const mapped = await Promise.map(places, place => Repo.get('place').findOne({ google_place_id: place.place_id })
             .then((gplace) => {
                 if (gplace) return EmergencyTrans.show(gplace);
@@ -47,6 +48,13 @@ exports.nearby = async (req, res, next) => {
     }
 };
 
-module.exports = exports;
+exports.addressDetail = async (req, res, next) => {
+    try {
+        const [{ address_components: result = null }] = await Place.reverseGeocode(req.query.coordinates);
+        return HttpResponse(res, 'address detail retrieved', components(result));
+    } catch (err) {
+        return next(err);
+    }
+};
 
-// ;
+module.exports = exports;
