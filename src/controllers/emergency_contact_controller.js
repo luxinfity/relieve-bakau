@@ -2,8 +2,10 @@
 
 const Promise = require('bluebird');
 const { HttpResponse } = require('../utils/helpers');
+
 const Place = require('../utils/adapters/places');
-const GooglePlace = require('../models/place_model');
+const Repository = require('../repositories');
+
 const EmergencyTrans = require('../utils/transformers/emergency_contact_transformer');
 const { create } = require('../utils/transformers/google_place_transformer');
 
@@ -27,14 +29,16 @@ exports.discoverDetail = async (req, res, next) => {
 
 exports.nearby = async (req, res, next) => {
     try {
+        const Repo = new Repository();
+
         const places = await Place.placeNearby(req.body.coordinates, req.body.radius);
-        const mapped = await Promise.map(places, place => GooglePlace.findOne({ google_place_id: place.place_id })
+        const mapped = await Promise.map(places, place => Repo.get('place').findOne({ google_place_id: place.place_id })
             .then((gplace) => {
                 if (gplace) return EmergencyTrans.show(gplace);
                 return Place.placeDetail(place.place_id)
                     .then((item) => {
                         if (!item.international_phone_number) return null;
-                        return GooglePlace.create(create(item, place.type)).then(() => EmergencyTrans.show(item));
+                        return Repo.get('place').create(create(item, place.type)).then(() => EmergencyTrans.show(item));
                     });
             }), { concurrency: 10 });
         return HttpResponse(res, 'nearby emergency contacts', mapped.filter(item => item));

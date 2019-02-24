@@ -1,13 +1,16 @@
 'use strict';
 
 const { HttpResponse } = require('../utils/helpers');
-const Position = require('../models/position_model');
-const Trans = require('../utils/transformers/position_transformer');
+
+const Repository = require('../repositories');
+const { create } = require('../utils/transformers/position_transformer');
 
 exports.create = async (req, res, next) => {
     try {
-        const payload = Trans.create(req);
-        await Position.create(payload);
+        const Repo = new Repository();
+
+        const payload = create(req);
+        await Repo.get('position').create(payload);
         return HttpResponse(res, 'position and status updated');
     } catch (err) {
         return next(err);
