@@ -6,13 +6,12 @@ const Config = require('../config/jwt');
 const GAuth = require('../utils/gauth');
 
 const Repository = require('../repositories');
-const User = require('../models/mongodb/user_model');
 const { create, googleCallback } = require('../utils/transformers/user_transformer');
 
 exports.register = async (req, res, next) => {
     try {
         const Repo = new Repository();
-        // let user = await Repo.get('user').findOne({ email: req.body.email });
+
         let user = await Repo.get('user').findOne({ email: req.body.email });
         if (user) throw HttpError.UnprocessableEntity('email already exsist');
 
@@ -20,7 +19,7 @@ exports.register = async (req, res, next) => {
         if (user) throw HttpError.UnprocessableEntity('username already exsist');
 
         const payload = create(req.body);
-        const newUser = await User.create(payload);
+        const newUser = await Repo.get('user').create(payload);
 
         const { token, refresh: refreshToken } = await newUser.sign();
 
@@ -96,7 +95,7 @@ exports.googleCallback = async (req, res, next) => {
         if (!user) {
             const newPayload = create({ ...payload }, { is_complete: false });
             isLogin = !isLogin;
-            user = await User.create(newPayload);
+            user = await Repo.get('user').create(newPayload);
         }
 
         const { token, refresh: refreshToken } = await user.sign();

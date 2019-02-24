@@ -2,13 +2,16 @@
 
 const HttpResponse = require('../utils/helpers').HttpResponse;
 const { HttpError } = require('../common');
-const User = require('../models/mongodb/user_model');
-const UserTrans = require('../utils/transformers/user_transformer');
+
+const Repository = require('../repositories');
+const { profile, completeRegister } = require('../utils/transformers/user_transformer');
 
 exports.profile = async (req, res, next) => {
     try {
-        const user = await User.findOne({ uuid: req.auth.uid });
-        return HttpResponse(res, 'successy retrieved profile data', UserTrans.profile(user));
+        const Repo = new Repository();
+
+        const user = await Repo.get('user').findOne({ uuid: req.auth.uid });
+        return HttpResponse(res, 'successy retrieved profile data', profile(user));
     } catch (err) {
         return next(err);
     }
@@ -16,14 +19,16 @@ exports.profile = async (req, res, next) => {
 
 exports.completeRegister = async (req, res, next) => {
     try {
-        const user = await User.findOne({ uuid: req.auth.uid, is_complete: false });
+        const Repo = new Repository();
+
+        const user = await Repo.get('user').findOne({ uuid: req.auth.uid, is_complete: false });
         if (!user) throw HttpError.Forbidden('profile already completed');
 
         // will be improved later...
-        const check = await User.findOne({ username: req.body.username });
+        const check = await Repo.get('user').findOne({ username: req.body.username });
         if (check) throw HttpError.UnprocessableEntity('username alerady exsist');
 
-        const payload = UserTrans.completeRegister(req.body);
+        const payload = completeRegister(req.body);
         await user.update(payload);
 
         return HttpResponse(res, 'complete register success');
@@ -34,10 +39,12 @@ exports.completeRegister = async (req, res, next) => {
 
 exports.updateFcmToken = async (req, res, next) => {
     try {
+        const Repo = new Repository();
+
         const payload = {
             fcm_token: req.body.fcm_token
         };
-        await User.updateOne({ uuid: req.auth.uid }, payload);
+        await Repo.get('user').updateOne({ uuid: req.auth.uid }, payload);
         return HttpResponse(res, 'fcm update success');
     } catch (err) {
         return next(err);
