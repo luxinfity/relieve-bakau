@@ -1,5 +1,5 @@
 const JWT = require('../../utils/jwt');
-const HttpError = require('../../utils/http_error');
+const { HttpError } = require('../../common');
 
 module.exports = async (req, res, next) => {
     try {

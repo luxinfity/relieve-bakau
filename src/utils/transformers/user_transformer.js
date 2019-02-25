@@ -7,8 +7,10 @@ const normalizeName = (payload) => {
     let name;
     if (payload.name) {
         name = payload.name;
-    } else {
+    } else if (payload.given_name) {
         name = `${payload.given_name} ${payload.family_name}`;
+    } else {
+        name = null;
     }
 
     return name;

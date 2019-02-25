@@ -1,19 +1,21 @@
 const { GEOLOCATION_ATTRIBUTES: GEOATTR } = require('../../utils/constant');
 
+exports.address_components = (address) => {
+    if (!address) return null;
+    const details = {};
+    address.forEach((key) => {
+        key.types.forEach((type) => {
+            if (GEOATTR[type]) {
+                details[GEOATTR[type].name] = key.long_name;
+            }
+        });
+    });
+    return details;
+};
+
 exports.create = ({ body, auth }, address) => {
     const [lat, lng] = body.coordinates.split(',').map(item => +item.trim());
-    const details = {};
-
-    if (address) {
-        address.forEach((key) => {
-            key.types.forEach((type) => {
-                if (GEOATTR[type]) {
-                    details[GEOATTR[type].name] = key.long_name;
-                }
-            });
-        });
-    }
-
+    const details = exports.address_components(address);
     return {
         name: body.name,
         user_id: auth.uid,
@@ -39,7 +41,7 @@ exports.detail = (address) => {
     const [lng, lat] = address.geograph.coordinates;
     return {
         name: address.name,
-        coordinates: `${lat}, ${lng}`,
+        coordinates: `${lat},${lng}`,
         details: address.details,
         emergency_contacts: address.emergency_contacts.map(item => ({
             name: item.name,

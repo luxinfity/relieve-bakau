@@ -29,6 +29,9 @@ const GEOLOCATION_ATTRIBUTES = {
     },
     administrative_area_level_4: {
         name: 'area_4'
+    },
+    route: {
+        name: 'street'
     }
 };
 

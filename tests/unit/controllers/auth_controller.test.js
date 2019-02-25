@@ -3,9 +3,9 @@ const Promise = require('bluebird');
 const sinon = require('sinon');
 const { mockRes } = require('sinon-express-mock');
 
-const HttpError = require('../../../src/utils/http_error');
+const { HttpError } = require('../../../src/common');
 const method = require('../../../src/controllers/auth_controller');
-const UserModel = require('../../../src/models/user_model');
+const UserModel = require('../../../src/models/mongodb/user_model');
 const GAuth = require('../../../src/utils/gauth');
 
 /** mock */

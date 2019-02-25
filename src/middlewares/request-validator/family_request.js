@@ -27,8 +27,4 @@ const schemas = {
     })
 };
 
-module.exports = method => [
-    (req, res, next) => {
-        req.schema = schemas[method]; next();
-    }, validator
-];
+module.exports = method => validator(schemas[method]);
