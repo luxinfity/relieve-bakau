@@ -38,7 +38,7 @@ FamilySchema.virtual('condition', {
     ref: 'Position',
     localField: 'family_id',
     foreignField: 'user_id',
-    options: { sort: { _id: -1 } }, // sort desc
+    options: { where: { is_latest: true } }, // sort desc
     justOne: true // take latest one
 });
 

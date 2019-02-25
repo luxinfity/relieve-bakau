@@ -95,6 +95,7 @@ exports.list = async (req, res, next) => {
         const Repo = new Repository();
 
         const families = await Repo.get('family').detailedList(req.auth.uid);
+
         const transformed = familyList(families);
         return HttpResponse(res, 'family list retrieved', transformed);
     } catch (err) {
