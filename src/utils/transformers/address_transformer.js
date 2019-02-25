@@ -41,7 +41,7 @@ exports.detail = (address) => {
     const [lng, lat] = address.geograph.coordinates;
     return {
         name: address.name,
-        coordinates: `${lat}, ${lng}`,
+        coordinates: `${lat},${lng}`,
         details: address.details,
         emergency_contacts: address.emergency_contacts.map(item => ({
             name: item.name,

@@ -12,7 +12,7 @@ const { create } = require('../utils/transformers/google_place_transformer');
 const { create: createAddress, list: addressList, detail } = require('../utils/transformers/address_transformer');
 
 const RADIUS = 1500; // meters
-const ADDRESS_MIN_RADIUS = 50;
+const ADDRESS_MIN_RADIUS = 50; // meters
 
 const generateEmergencyContacts = async (address) => {
     const Repo = new Repository();
