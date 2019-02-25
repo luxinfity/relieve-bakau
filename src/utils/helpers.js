@@ -10,4 +10,11 @@ exports.requestInput = req => ({
     body: req.body || null
 });
 
+exports.splitCoordinates = (coordinates) => {
+    const [lat, lng] = coordinates.split(',').map(item => +item.trim());
+    return {
+        lat, lng
+    };
+};
+
 module.exports = exports;

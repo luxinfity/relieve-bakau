@@ -26,6 +26,18 @@ class AddressRepo extends BaseRepository {
         return mongo.Address.findOne({ uuid, user_id: userId })
             .populate('emergency_contacts');
     }
+
+    async findNearby(conditions, coordinates, radius = 10) {
+        const mongo = await this.getMongoInstance();
+        return mongo.Address.findOne({
+            geograph: {
+                $near: {
+                    $geometry: { type: 'Point', coordinates },
+                    $maxDistance: radius
+                }
+            }
+        });
+    }
 }
 
 module.exports = AddressRepo;
