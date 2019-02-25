@@ -26,6 +26,11 @@ const PositionSchema = new Schema({
         type: Number,
         enum: [10, 20, 30],
         required: true
+    },
+    is_latest: {
+        type: Boolean,
+        default: false,
+        required: true
     }
 }, { versionKey: false });
 

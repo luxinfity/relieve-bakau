@@ -15,6 +15,11 @@ class PositionRepo extends BaseRepository {
         const mongo = await this.getMongoInstance();
         return mongo.Position.updateOne(conditions, payload);
     }
+
+    async updateMany(conditions, payload) {
+        const mongo = await this.getMongoInstance();
+        return mongo.Position.updateMany(conditions, payload);
+    }
 }
 
 module.exports = PositionRepo;

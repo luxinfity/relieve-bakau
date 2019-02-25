@@ -6,7 +6,8 @@ exports.create = (request) => {
             type: 'Point',
             coordinates: [lng, lat]
         },
-        status: +request.body.status
+        status: +request.body.status,
+        is_latest: true
     };
 };
 
