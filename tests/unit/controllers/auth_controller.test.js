@@ -6,7 +6,7 @@ const { mockRes } = require('sinon-express-mock');
 const { HttpError } = require('../../../src/common');
 const method = require('../../../src/controllers/auth_controller');
 const UserModel = require('../../../src/models/mongodb/user_model');
-const GAuth = require('../../../src/utils/gauth');
+const GAuth = require('../../../src/utils/libs/gauth');
 
 /** mock */
 const res = mockRes();

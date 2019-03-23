@@ -3,7 +3,7 @@
 const { HttpResponse } = require('../utils/helpers');
 const { HttpError } = require('../common');
 const Config = require('../config/jwt');
-const GAuth = require('../utils/gauth');
+const GAuth = require('../utils/libs/gauth');
 
 const Repository = require('../repositories');
 const { create, googleCallback } = require('../utils/transformers/user_transformer');

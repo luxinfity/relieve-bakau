@@ -7,8 +7,9 @@ const cors = require('cors');
 const { MapsContext, MongoContext, HttpError } = require('./common');
 
 const ApiGuard = require('./middlewares/request-handler/api_guard');
-const RateLimiter = require('./utils/rate_limiter');
-const GoogleAuth = require('./utils/gauth');
+const RateLimiter = require('./utils/libs/rate_limiter');
+const GoogleAuth = require('./utils/libs/gauth');
+const GoogleMaps = require('./utils/libs/gmaps');
 
 const routeHandler = require('./routes');
 const exceptionHandler = require('./exceptions');
@@ -17,9 +18,12 @@ const app = express();
 
 /** Singleton Instances */
 MongoContext.initialize();
-MapsContext.initialize();
 HttpError.initialize();
+/** */
+
+/** Plugins */
 GoogleAuth.initialize();
+GoogleMaps.initialize();
 /** */
 
 /** Thrid Party Plugins */
