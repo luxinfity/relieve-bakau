@@ -30,7 +30,7 @@ const RefreshTokenSchema = new Schema({
 }, { versionKey: false, _id: false });
 
 const UserSchema = new Schema({
-    uuid: {
+    id: {
         type: String,
         default: uuid.v4,
         required: true
@@ -75,7 +75,7 @@ const UserSchema = new Schema({
 }, { versionKey: false });
 
 const createTokens = async (user) => {
-    const token = await Jwt.create({ uid: user.uuid });
+    const token = await Jwt.create({ uid: user.id });
     const refresh = await Jwt.generateRefreshToken();
     return {
         token,
@@ -101,7 +101,7 @@ UserSchema.method({
     },
     signByRefresh() {
         if (moment() > moment(this.refresh_token.expired_at)) throw HttpError.NotAuthorized('refresh token expired');
-        return Jwt.create({ uid: this.uuid });
+        return Jwt.create({ uid: this.id });
     }
 });
 

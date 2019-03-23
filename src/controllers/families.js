@@ -35,13 +35,13 @@ exports.createRequest = async (data, context) => {
         const person = await Repo.get('user').findOne({ username: data.body.username });
         if (!person) throw HttpError.BadRequest('requested person not found');
 
-        if (context.id === person.uuid) throw HttpError.Forbidden('cannot request to yourself');
+        if (context.id === person.id) throw HttpError.Forbidden('cannot request to yourself');
 
-        const check = await Repo.get('family').findOne({ user_id: context.id, 'family.id': person.uuid });
+        const check = await Repo.get('family').findOne({ user_id: context.id, 'family.id': person.id });
         if (check) throw HttpError.BadRequest('person already in family list');
 
         await Repo.get('family').updateRequest(
-            { requestor_id: context.id, target_id: person.uuid },
+            { requestor_id: context.id, target_id: person.id },
             familyRequest(data, person),
             { upsert: true, setDefaultsOnInsert: true }
         );
@@ -64,12 +64,12 @@ exports.verifyRequest = async (data, context) => {
         const person = await Repo.get('user').findOne({ username: data.body.username });
         if (!person) throw HttpError.BadRequest('requested person not found');
 
-        const request = await Repo.get('family').requestDetail(context.id, person.uuid, data.body.code, STATUS.WAITING_VERIFICATION);
+        const request = await Repo.get('family').requestDetail(context.id, person.id, data.body.code, STATUS.WAITING_VERIFICATION);
         if (!request) throw HttpError.BadRequest('family request not found or invalid');
 
         await Promise.join(
             Repo.get('family').updateRequest(
-                { uuid: request.uuid },
+                { id: request.id },
                 { status: STATUS.VERIFIED }
             ),
             pairUsers([context.id, request.target_id])
@@ -119,11 +119,11 @@ exports.update = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        const family = await Repo.get('family').findOne({ uuid: data.params.uuid });
+        const family = await Repo.get('family').findOne({ id: data.params.id });
         if (!family) throw HttpError.BadRequest('family not found');
 
         const payload = { ...data.body };
-        await Repo.get('family').updateOne({ uuid: family.uuid }, payload);
+        await Repo.get('family').updateOne({ id: family.id }, payload);
 
         return {
             message: 'family updated'

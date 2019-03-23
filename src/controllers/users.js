@@ -8,7 +8,7 @@ const { profile, completeRegister } = require('../utils/transformers/user_transf
 exports.profile = async (data, context) => {
     try {
         const Repo = new Repository();
-        const user = await Repo.get('user').findOne({ uuid: context.id });
+        const user = await Repo.get('user').findOne({ id: context.id });
 
         return {
             message: 'successy retrieved profile data',
@@ -24,7 +24,7 @@ exports.completeRegister = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        const user = await Repo.get('user').findOne({ uuid: context.id, is_complete: false });
+        const user = await Repo.get('user').findOne({ id: context.id, is_complete: false });
         if (!user) throw HttpError.Forbidden('profile already completed');
 
         const check = await Repo.get('user').findOne({ username: data.body.username });
@@ -45,7 +45,7 @@ exports.completeRegister = async (data, context) => {
 exports.updateFcmToken = async (data, context) => {
     try {
         const Repo = new Repository();
-        await Repo.get('user').updateOne({ uuid: context.id }, { fcm_token: data.body.fcm_token });
+        await Repo.get('user').updateOne({ id: context.id }, { fcm_token: data.body.fcm_token });
 
         return {
             message: 'fcm update success'

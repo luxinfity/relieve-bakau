@@ -17,7 +17,7 @@ const normalizeName = (payload) => {
 };
 
 exports.create = (payload, { is_complete: isComplete } = { is_complete: true }) => ({
-    uuid: uuid(),
+    id: uuid(),
     ...payload,
     phones: payload.phone ? [{ number: payload.phone, status: 10 }] : [], // set as primary phone
     password: payload.password || null,

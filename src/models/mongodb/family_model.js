@@ -2,7 +2,7 @@ const { Schema, model } = require('mongoose');
 const uuid = require('uuid');
 
 const FamilySchema = new Schema({
-    uuid: {
+    id: {
         type: String,
         default: uuid.v4,
         required: true

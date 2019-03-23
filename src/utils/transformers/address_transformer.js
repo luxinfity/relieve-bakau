@@ -30,7 +30,7 @@ exports.create = ({ body, auth }, address) => {
 exports.list = addresses => addresses.map((item) => {
     const [lng, lat] = item.geograph.coordinates;
     return ({
-        uuid: item.uuid,
+        id: item.id,
         name: item.name,
         details: item.details,
         coordinates: `${lat}, ${lng}`

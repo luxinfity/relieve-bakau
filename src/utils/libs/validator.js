@@ -72,7 +72,7 @@ const schemas = {
     }),
     updateRequest: Joi.object({
         params: Joi.object({
-            uuid: Joi.string().required()
+            id: Joi.string().required()
         }).required(),
         body: Joi.object({
             nick: Joi.string(),
