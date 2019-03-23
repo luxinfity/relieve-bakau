@@ -12,6 +12,6 @@ router.get('/', Logic(list));
 router.get('/request', Logic(requestList));
 router.post('/request', Validator('createRequest'), Logic(createRequest));
 router.post('/request/verify', Validator('verifyRequest'), Logic(verifyRequest));
-router.put('/:uuid/update', Validator('updateRequest'), Logic(update));
+router.put('/:id/update', Validator('updateRequest'), Logic(update));
 
 module.exports = router;

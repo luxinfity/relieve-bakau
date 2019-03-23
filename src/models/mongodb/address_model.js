@@ -36,7 +36,7 @@ const AddressSchema = new Schema({
 // Relation to emergency contact
 AddressSchema.virtual('emergency_contacts', {
     ref: 'EmergencyContact',
-    localField: 'uuid',
+    localField: 'id',
     foreignField: 'address_id'
 });
 

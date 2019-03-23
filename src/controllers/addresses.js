@@ -50,7 +50,7 @@ exports.create = async (data, context) => {
         const Repo = new Repository();
         const [{ address_components: addressDetail = null }] = await Place.reverseGeocode(data.body.coordinates);
 
-        const payload = createAddress(data, addressDetail);
+        const payload = createAddress({ data, context }, addressDetail);
 
         /** check if address already exsist by distance */
         const find = await Repo.get('address').findNearby({ user_id: context.id }, payload.geograph.coordinates, ADDRESS_MIN_RADIUS);
@@ -88,9 +88,9 @@ exports.list = async (data, context) => {
 
 exports.detail = async (data, context) => {
     try {
-        const Repo = new Repository();
+        const Repo = new Repository(context);
 
-        const address = await Repo.get('address').findDetailed(context.id, data.params.id);
+        const address = await Repo.get('address').findDetailed(data.params.id);
         if (!address) throw HttpError.NotFound('address not found');
 
         return {

@@ -29,7 +29,7 @@ const FamilySchema = new Schema({
 FamilySchema.virtual('family', {
     ref: 'User',
     localField: 'family_id',
-    foreignField: 'uuid',
+    foreignField: 'id',
     justOne: true
 });
 

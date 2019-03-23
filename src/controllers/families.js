@@ -42,7 +42,7 @@ exports.createRequest = async (data, context) => {
 
         await Repo.get('family').updateRequest(
             { requestor_id: context.id, target_id: person.id },
-            familyRequest(data, person),
+            familyRequest({ data, context }, person),
             { upsert: true, setDefaultsOnInsert: true }
         );
 

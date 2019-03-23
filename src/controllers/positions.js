@@ -8,7 +8,7 @@ const { create } = require('../utils/transformers/position_transformer');
 exports.create = async (data, context) => {
     try {
         const Repo = new Repository();
-        const payload = create(data);
+        const payload = create(data, context);
 
         await Repo.get('position').updateMany({ user_id: context.id, is_latest: true }, { is_latest: false });
         await Repo.get('position').create(payload);

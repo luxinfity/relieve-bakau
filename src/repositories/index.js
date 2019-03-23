@@ -23,7 +23,8 @@ const generateRepoPath = () => {
     return paths;
 };
 class RepoFactory {
-    constructor() {
+    constructor(context = null) {
+        this.context = context;
         this.instance = {};
         this.repoPath = generateRepoPath();
     }
