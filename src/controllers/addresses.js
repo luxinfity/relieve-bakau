@@ -1,8 +1,6 @@
 'use strict';
 
 const Promise = require('bluebird');
-
-const { HttpResponse } = require('../utils/helpers');
 const { HttpError } = require('node-common');
 
 const Place = require('../utils/adapters/places');
@@ -47,15 +45,15 @@ const generateEmergencyContacts = async (address) => {
     }, { concurrency: 10 });
 };
 
-exports.create = async (req, res, next) => {
+exports.create = async (data, context) => {
     try {
         const Repo = new Repository();
-        const [{ address_components: addressDetail = null }] = await Place.reverseGeocode(req.body.coordinates);
+        const [{ address_components: addressDetail = null }] = await Place.reverseGeocode(data.body.coordinates);
 
-        const payload = createAddress(req, addressDetail);
+        const payload = createAddress(data, addressDetail);
 
         /** check if address already exsist by distance */
-        const find = await Repo.get('address').findNearby({ user_id: req.auth.uid }, payload.geograph.coordinates, ADDRESS_MIN_RADIUS);
+        const find = await Repo.get('address').findNearby({ user_id: context.id }, payload.geograph.coordinates, ADDRESS_MIN_RADIUS);
         if (find) throw HttpError.Forbidden('address already exsist');
 
         const address = await Repo.get('address').create(payload);
@@ -63,33 +61,45 @@ exports.create = async (req, res, next) => {
         /** should be async or queued */
         await generateEmergencyContacts(address);
 
-        return HttpResponse(res, 'address created', payload);
+        return {
+            message: 'address created',
+            data: payload
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 
-exports.list = async (req, res, next) => {
+exports.list = async (data, context) => {
     try {
         const Repo = new Repository();
+        const addresses = await Repo.get('address').findAll({ user_id: context.id });
 
-        const addresses = await Repo.get('address').findAll({ user_id: req.auth.uid });
-        return HttpResponse(res, 'addresses retrieved', addressList(addresses));
+        return {
+            message: 'addresses retrieved',
+            data: addressList(addresses)
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 
-exports.detail = async (req, res, next) => {
+exports.detail = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        const address = await Repo.get('address').findDetailed(req.auth.uid, req.params.id);
+        const address = await Repo.get('address').findDetailed(context.id, data.params.id);
         if (!address) throw HttpError.NotFound('address not found');
 
-        return HttpResponse(res, 'address detail retrieved', detail(address));
+        return {
+            message: 'address detail retrieved',
+            data: detail(address)
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 

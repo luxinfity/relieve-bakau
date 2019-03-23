@@ -2,7 +2,6 @@
 
 const { HttpError } = require('node-common');
 const Promise = require('bluebird');
-const { HttpResponse } = require('../utils/helpers');
 
 const Repository = require('../repositories');
 const { familyRequest, familyList, requestList } = require('../utils/transformers/family_transformer');
@@ -28,41 +27,44 @@ const pairUsers = async (userIds) => {
     }, { concurrency: 5 });
 };
 
-exports.createRequest = async (req, res, next) => {
+exports.createRequest = async (data, context) => {
     try {
         const Repo = new Repository();
 
         // TODO: check family limit
-        const person = await Repo.get('user').findOne({ username: req.body.username });
+        const person = await Repo.get('user').findOne({ username: data.body.username });
         if (!person) throw HttpError.BadRequest('requested person not found');
 
-        if (req.auth.uid === person.uuid) throw HttpError.Forbidden('cannot request to yourself');
+        if (context.id === person.uuid) throw HttpError.Forbidden('cannot request to yourself');
 
-        const check = await Repo.get('family').findOne({ user_id: req.auth.uid, 'family.id': person.uuid });
+        const check = await Repo.get('family').findOne({ user_id: context.id, 'family.id': person.uuid });
         if (check) throw HttpError.BadRequest('person already in family list');
 
         await Repo.get('family').updateRequest(
-            { requestor_id: req.auth.uid, target_id: person.uuid },
-            familyRequest(req, person),
+            { requestor_id: context.id, target_id: person.uuid },
+            familyRequest(data, person),
             { upsert: true, setDefaultsOnInsert: true }
         );
 
         // TODO: notify requested target
 
-        return HttpResponse(res, 'family request sent');
+        return {
+            message: 'family request sent'
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 
-exports.verifyRequest = async (req, res, next) => {
+exports.verifyRequest = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        const person = await Repo.get('user').findOne({ username: req.body.username });
+        const person = await Repo.get('user').findOne({ username: data.body.username });
         if (!person) throw HttpError.BadRequest('requested person not found');
 
-        const request = await Repo.get('family').requestDetail(req.auth.uid, person.uuid, req.body.code, STATUS.WAITING_VERIFICATION);
+        const request = await Repo.get('family').requestDetail(context.id, person.uuid, data.body.code, STATUS.WAITING_VERIFICATION);
         if (!request) throw HttpError.BadRequest('family request not found or invalid');
 
         await Promise.join(
@@ -70,52 +72,65 @@ exports.verifyRequest = async (req, res, next) => {
                 { uuid: request.uuid },
                 { status: STATUS.VERIFIED }
             ),
-            pairUsers([req.auth.uid, request.target_id])
+            pairUsers([context.id, request.target_id])
         );
 
-        return HttpResponse(res, 'family request verified');
+        return {
+            message: 'family request verified'
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 
-exports.requestList = async (req, res, next) => {
+exports.requestList = async (data, context) => {
     try {
         const Repo = new Repository();
-        const requests = await Repo.get('family').requestList(req.auth.uid, STATUS.WAITING_VERIFICATION);
+        const requests = await Repo.get('family').requestList(context.id, STATUS.WAITING_VERIFICATION);
 
-        return HttpResponse(res, 'family request list retrieved', requestList(requests));
+        return {
+            message: 'family request list retrieved',
+            data: requestList(requests)
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 
-exports.list = async (req, res, next) => {
+exports.list = async (data, context) => {
     try {
         const Repo = new Repository();
-
-        const families = await Repo.get('family').detailedList(req.auth.uid);
+        const families = await Repo.get('family').detailedList(context.id);
 
         const transformed = familyList(families);
-        return HttpResponse(res, 'family list retrieved', transformed);
+        return {
+            message: 'family list retrieved',
+            data: transformed
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 
-exports.update = async (req, res, next) => {
+exports.update = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        const family = await Repo.get('family').findOne({ uuid: req.params.uuid });
+        const family = await Repo.get('family').findOne({ uuid: data.params.uuid });
         if (!family) throw HttpError.BadRequest('family not found');
 
-        const payload = { ...req.body };
+        const payload = { ...data.body };
         await Repo.get('family').updateOne({ uuid: family.uuid }, payload);
 
-        return HttpResponse(res, 'family updated');
+        return {
+            message: 'family updated'
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 

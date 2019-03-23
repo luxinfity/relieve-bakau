@@ -1,13 +1,18 @@
+'use strict';
+
 const router = require('express').Router();
-const AuthController = require('../controllers/auth_controller');
-const AuthRequest = require('../middlewares/request-validator/auth_request');
+const Validator = require('../middlewares/request_validator');
 
-router.get('/', (req, res) => res.json({ message: 'bakau running' }));
+const {
+    register, login, paramCheck, refresh, googleCallback
+} = require('../controllers/authentication');
+const { ExpressLogicAdapter: Logic } = require('../utils/libs/express');
 
-router.post('/register', AuthRequest('register'), AuthController.register);
-router.post('/login', AuthRequest('login'), AuthController.login);
-router.post('/check', AuthRequest('check'), AuthController.paramCheck);
-router.post('/refresh', AuthRequest('refresh'), AuthController.refresh);
-router.post('/google/callback', AuthRequest('google'), AuthController.googleCallback);
+router.get('/', Logic(() => ({ message: 'bakau running' })));
+router.post('/register', Validator('register'), Logic(register));
+router.post('/login', Validator('login'), Logic(login));
+router.post('/check', Validator('check'), Logic(paramCheck));
+router.post('/refresh', Validator('refresh'), Logic(refresh));
+router.post('/google/callback', Validator('google'), Logic(googleCallback));
 
 module.exports = router;

@@ -1,11 +1,17 @@
-const router = require('express').Router();
-const FamilyController = require('../controllers/family_controller');
-const FamilyRequest = require('../middlewares/request-validator/family_request');
+'use strict';
 
-router.get('/', FamilyController.list);
-router.get('/request', FamilyController.requestList);
-router.post('/request', FamilyRequest('createRequest'), FamilyController.createRequest);
-router.post('/request/verify', FamilyRequest('verifyRequest'), FamilyController.verifyRequest);
-router.put('/:uuid/update', FamilyRequest('update'), FamilyController.update);
+const router = require('express').Router();
+const Validator = require('../middlewares/request_validator');
+
+const {
+    list, requestList, createRequest, verifyRequest, update
+} = require('../controllers/families');
+const { ExpressLogicAdapter: Logic } = require('../utils/libs/express');
+
+router.get('/', Logic(list));
+router.get('/request', Logic(requestList));
+router.post('/request', Validator('createRequest'), Logic(createRequest));
+router.post('/request/verify', Validator('verifyRequest'), Logic(verifyRequest));
+router.put('/:uuid/update', Validator('updateRequest'), Logic(update));
 
 module.exports = router;

@@ -1,9 +1,13 @@
-const router = require('express').Router();
-const UserController = require('../controllers/user_controller');
-const ProfileRequest = require('../middlewares/request-validator/user_request');
+'use strict';
 
-router.get('/profile', UserController.profile);
-router.post('/complete-registration', ProfileRequest('completeRegistration'), UserController.completeRegister);
-router.post('/update-fcm', ProfileRequest('updateFcmToken'), UserController.updateFcmToken);
+const router = require('express').Router();
+const Validator = require('../middlewares/request_validator');
+
+const { profile, completeRegister, updateFcmToken } = require('../controllers/users');
+const { ExpressLogicAdapter: Logic } = require('../utils/libs/express');
+
+router.get('/profile', Logic(profile));
+router.post('/complete-registration', Validator('completeRegistration'), Logic(completeRegister));
+router.post('/update-fcm', Validator('updateFcmToken'), Logic(updateFcmToken));
 
 module.exports = router;

@@ -1,7 +1,7 @@
 'use strict';
 
 const { HttpError } = require('node-common');
-const JWT = require('../../utils/libs/jwt');
+const JWT = require('../utils/libs/jwt');
 
 module.exports = async (req, res, next) => {
     try {

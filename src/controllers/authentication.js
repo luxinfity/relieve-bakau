@@ -1,24 +1,23 @@
 'use strict';
 
 const { HttpError } = require('node-common');
-const { HttpResponse } = require('../utils/helpers');
 const Config = require('../config/jwt');
 const GAuth = require('../utils/libs/gauth');
 
 const Repository = require('../repositories');
 const { create, googleCallback } = require('../utils/transformers/user_transformer');
 
-exports.register = async (req, res, next) => {
+exports.register = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        let user = await Repo.get('user').findOne({ email: req.body.email });
+        let user = await Repo.get('user').findOne({ email: data.body.email });
         if (user) throw HttpError.UnprocessableEntity('email already exsist');
 
-        user = await Repo.get('user').findOne({ username: req.body.username });
+        user = await Repo.get('user').findOne({ username: data.body.username });
         if (user) throw HttpError.UnprocessableEntity('username already exsist');
 
-        const payload = create(req.body);
+        const payload = create(data.body);
         const newUser = await Repo.get('user').create(payload);
 
         const { token, refresh: refreshToken } = await newUser.sign();
@@ -29,37 +28,45 @@ exports.register = async (req, res, next) => {
             expires_in: Config.expired
         };
 
-        return HttpResponse(res, 'register success', response);
+        return {
+            message: 'register success',
+            data: response
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 
-exports.login = async (req, res, next) => {
+exports.login = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        const user = await Repo.get('user').findOne({ $or: [{ username: req.body.username }, { email: req.body.username }], is_complete: true });
+        const user = await Repo.get('user').findOne({ $or: [{ username: data.body.username }, { email: data.body.username }], is_complete: true });
         if (!user) throw HttpError.NotAuthorized('Credentials not match');
 
-        const { token, refresh: refreshToken } = await user.signIn(req.body.password);
+        const { token, refresh: refreshToken } = await user.signIn(data.body.password);
         const response = {
             token,
             refresh_token: refreshToken,
             expires_in: Config.expired
         };
 
-        return HttpResponse(res, 'login success', response);
+        return {
+            message: 'login success',
+            data: response
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 
-exports.refresh = async (req, res, next) => {
+exports.refresh = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        const user = await Repo.get('user').findOne({ 'refresh_token.token': req.body.refresh_token });
+        const user = await Repo.get('user').findOne({ 'refresh_token.token': data.body.refresh_token });
         if (!user) throw HttpError.NotAuthorized('refresh token invalid');
 
         const token = await user.signByRefresh();
@@ -67,15 +74,20 @@ exports.refresh = async (req, res, next) => {
             new_token: token,
             expires_in: Config.expired
         };
-        return HttpResponse(res, 'token refreshed', response);
+
+        return {
+            message: 'token refreshed',
+            data: response
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 
-exports.googleCallback = async (req, res, next) => {
+exports.googleCallback = async (data, context) => {
     try {
-        const idToken = req.body.idToken;
+        const idToken = data.body.idToken;
         const client = GAuth.getClient();
 
         let ticket;
@@ -96,38 +108,49 @@ exports.googleCallback = async (req, res, next) => {
         /** if user already registered, authenticate user */
         if (user) {
             const { token, refresh: refreshToken } = await user.sign();
-            return HttpResponse(res, `${action} success`, {
-                token,
-                refresh_token: refreshToken,
-                expires_in: Config.expired,
-                action
-            });
+            return {
+                message: `${action} success`,
+                data: {
+                    token,
+                    refresh_token: refreshToken,
+                    expires_in: Config.expired,
+                    action
+                }
+            };
         }
 
         /** if not registered, return basic info for registration */
         action = 'register';
-        return HttpResponse(res, `redirect to ${action}`, {
-            ...payload,
-            action
-        });
+        return {
+            message: `redirect to ${action}`,
+            data: {
+                ...payload,
+                action
+            }
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 
-exports.paramCheck = async (req, res, next) => {
+exports.paramCheck = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        const { param, value } = req.body;
+        const { param, value } = data.body;
         const user = await Repo.get('user').findOne({ [param]: value });
         const response = {
             param, value, is_exsist: !!user
         };
 
-        return HttpResponse(res, 'param check success', response);
+        return {
+            message: 'param check success',
+            data: response
+        };
     } catch (err) {
-        return next(err);
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
     }
 };
 

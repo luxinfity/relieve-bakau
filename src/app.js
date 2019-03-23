@@ -8,7 +8,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 
 /** Handlers */
-const ApiGuard = require('./middlewares/request-handler/api_guard');
+const ApiGuard = require('./middlewares/api_guard');
 const RateLimiter = require('./utils/libs/rate_limiter');
 const RouteHandler = require('./routes');
 const ExceptionHandler = require('./exceptions');
