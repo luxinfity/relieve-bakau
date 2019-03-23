@@ -1,12 +1,12 @@
-exports.create = (request) => {
-    const [lat, lng] = request.body.coordinates.split(',').map(item => +item.trim());
+exports.create = (data, context) => {
+    const [lat, lng] = data.body.coordinates.split(',').map(item => +item.trim());
     return {
-        user_id: request.auth.uid,
+        user_id: context.id,
         geograph: {
             type: 'Point',
             coordinates: [lng, lat]
         },
-        status: +request.body.status,
+        status: +data.body.status,
         is_latest: true
     };
 };

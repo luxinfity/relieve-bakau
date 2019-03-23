@@ -41,10 +41,10 @@ class FamilyRepo extends BaseRepository {
             .populate('requestor', 'fullname');
     }
 
-    async requestDetail(requestorId, targetId, pairCode, status) {
+    async requestDetail(id, targetId, pairCode, status) {
         const mongo = await this.getMongoInstance();
         return mongo.FamilyRequest.findOne({
-            requestor_id: requestorId, target_id: targetId, pair_code: pairCode, status
+            _id: id, target_id: targetId, pair_code: pairCode, status
         });
     }
 

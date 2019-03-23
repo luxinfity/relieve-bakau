@@ -1,26 +1,35 @@
+'use strict';
+
+const { HttpError, MongoContext, JobWorker } = require('node-common');
 const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cors = require('cors');
 
-const { MapsContext, MongoContext, HttpError } = require('./common');
+/** Handlers */
+const ApiGuard = require('./middlewares/api_guard');
+const RateLimiter = require('./utils/libs/rate_limiter');
+const RouteHandler = require('./routes');
+const ExceptionHandler = require('./exceptions');
+const GoogleAuth = require('./utils/libs/gauth');
+const GoogleMaps = require('./utils/libs/gmaps');
 
-const ApiGuard = require('./middlewares/request-handler/api_guard');
-const RateLimiter = require('./utils/rate_limiter');
-const GoogleAuth = require('./utils/gauth');
+/** Configuration file */
+const { mongodb: MongoConfig } = require('./config/database');
+const { MODELS_PATH } = require('./utils/constant');
 
-const routeHandler = require('./routes');
-const exceptionHandler = require('./exceptions');
-
+/** Initialize Express */
 const app = express();
 
 /** Singleton Instances */
-MongoContext.initialize();
-MapsContext.initialize();
 HttpError.initialize();
+MongoContext.initialize({ path: MODELS_PATH.MONGO, config: MongoConfig });
+JobWorker.initialize({ path: MODELS_PATH.JOB });
+
+/** Plugins */
 GoogleAuth.initialize();
-/** */
+GoogleMaps.initialize();
 
 /** Thrid Party Plugins */
 app.use(helmet());
@@ -28,16 +37,13 @@ app.use(cors());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-/** */
 
 /** Global Middlewares */
 app.use(ApiGuard);
 app.use(RateLimiter());
-/** */
 
 /** App Handlers */
-routeHandler(app);
-exceptionHandler(app);
-/** */
+RouteHandler(app);
+ExceptionHandler(app);
 
 module.exports = app;

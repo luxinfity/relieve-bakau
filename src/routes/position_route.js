@@ -1,7 +1,11 @@
-const router = require('express').Router();
-const PositionController = require('../controllers/position_controller');
-const PositionRequest = require('../middlewares/request-validator/position_request');
+'use strict';
 
-router.post('/', PositionRequest('create'), PositionController.create);
+const router = require('express').Router();
+const Validator = require('../middlewares/request_validator');
+
+const { create } = require('../controllers/positions');
+const { ExpressLogicAdapter: Logic } = require('../utils/libs/express');
+
+router.post('/', Validator('createPosition'), Logic(create));
 
 module.exports = router;

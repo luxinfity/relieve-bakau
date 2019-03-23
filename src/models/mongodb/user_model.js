@@ -1,10 +1,14 @@
-const { Schema, model } = require('mongoose');
-const uuid = require('uuid');
+const { HttpError } = require('node-common');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
+const mongoose = require('mongoose');
+const uuid = require('uuid');
+require('mongoose-uuid2')(mongoose);
 
-const Jwt = require('../../utils/jwt');
-const { HttpError } = require('../../common');
+const Jwt = require('../../utils/libs/jwt');
+
+const { Schema, model, Types } = mongoose;
+const options = { versionKey: false, timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, toJSON: { virtuals: true } };
 
 const ContactSchema = new Schema({
     number: {
@@ -30,10 +34,9 @@ const RefreshTokenSchema = new Schema({
 }, { versionKey: false, _id: false });
 
 const UserSchema = new Schema({
-    uuid: {
-        type: String,
-        default: uuid.v4,
-        required: true
+    _id: {
+        type: Types.UUID,
+        default: uuid.v4
     },
     fullname: {
         type: String,
@@ -72,10 +75,10 @@ const UserSchema = new Schema({
     refresh_token: {
         type: RefreshTokenSchema
     }
-}, { versionKey: false });
+}, options);
 
 const createTokens = async (user) => {
-    const token = await Jwt.create({ uid: user.uuid });
+    const token = await Jwt.create({ uid: user.id });
     const refresh = await Jwt.generateRefreshToken();
     return {
         token,
@@ -101,7 +104,7 @@ UserSchema.method({
     },
     signByRefresh() {
         if (moment() > moment(this.refresh_token.expired_at)) throw HttpError.NotAuthorized('refresh token expired');
-        return Jwt.create({ uid: this.uuid });
+        return Jwt.create({ uid: this.id });
     }
 });
 

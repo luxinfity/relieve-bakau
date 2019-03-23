@@ -1,18 +1,21 @@
-const { Schema, model } = require('mongoose');
+const mongoose = require('mongoose');
 const uuid = require('uuid');
+require('mongoose-uuid2')(mongoose);
+
+const { Schema, model, Types } = mongoose;
+const options = { versionKey: false, timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, toJSON: { virtuals: true } };
 
 const FamilySchema = new Schema({
-    uuid: {
-        type: String,
-        default: uuid.v4,
-        required: true
+    _id: {
+        type: Types.UUID,
+        default: uuid.v4
     },
     user_id: {
-        type: String,
+        type: Types.UUID,
         required: true
     },
     family_id: {
-        type: String,
+        type: Types.UUID,
         required: true
     },
     role: {
@@ -23,13 +26,13 @@ const FamilySchema = new Schema({
         type: String,
         default: null
     }
-}, { versionKey: false, toJSON: { virtuals: true } });
+}, options);
 
 // Relation to user
 FamilySchema.virtual('family', {
     ref: 'User',
     localField: 'family_id',
-    foreignField: 'uuid',
+    foreignField: '_id',
     justOne: true
 });
 

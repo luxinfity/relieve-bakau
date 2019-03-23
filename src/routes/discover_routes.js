@@ -1,11 +1,17 @@
+'use strict';
+
 const router = require('express').Router();
-const DiscoverController = require('../controllers/discover_controller');
-const DiscoverRequest = require('../middlewares/request-validator/discover_request');
+const Validator = require('../middlewares/request_validator');
 
-router.post('/places', DiscoverController.places);
-router.post('/places/:id', DiscoverController.placesDetail);
+const {
+    places, placesDetail, nearbyContacts, addressDetail
+} = require('../controllers/discovers');
+const { ExpressLogicAdapter: Logic } = require('../utils/libs/express');
 
-router.get('/nearby-contacts', DiscoverRequest('nearby'), DiscoverController.nearbyContacts);
-router.get('/address-detail', DiscoverRequest('address'), DiscoverController.addressDetail);
+router.post('/places', Logic(places));
+router.post('/places/:id', Logic(placesDetail));
+
+router.get('/nearby-contacts', Validator('nearby'), Logic(nearbyContacts));
+router.get('/address-detail', Validator('address'), Logic(addressDetail));
 
 module.exports = router;

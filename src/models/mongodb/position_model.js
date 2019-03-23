@@ -1,14 +1,17 @@
-const { Schema, model } = require('mongoose');
+const mongoose = require('mongoose');
 const uuid = require('uuid');
+require('mongoose-uuid2')(mongoose);
+
+const { Schema, model, Types } = mongoose;
+const options = { versionKey: false, timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, toJSON: { virtuals: true } };
 
 const PositionSchema = new Schema({
-    uuid: {
-        type: String,
-        default: uuid.v4,
-        required: true
+    _id: {
+        type: Types.UUID,
+        default: uuid.v4
     },
     user_id: {
-        type: String,
+        type: Types.UUID,
         required: true
     },
     geograph: {
@@ -32,6 +35,6 @@ const PositionSchema = new Schema({
         default: false,
         required: true
     }
-}, { versionKey: false });
+}, options);
 
 module.exports = model('Position', PositionSchema, 'positions');
