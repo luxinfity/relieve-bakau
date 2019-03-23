@@ -23,7 +23,7 @@ class AddressRepo extends BaseRepository {
 
     async findDetailed(id) {
         const mongo = await this.getMongoInstance();
-        return mongo.Address.findOne({ id, user_id: this.context.id })
+        return mongo.Address.findOne({ _id: id, user_id: this.context.id })
             .populate('emergency_contacts');
     }
 

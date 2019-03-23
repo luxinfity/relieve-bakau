@@ -1,14 +1,17 @@
-const { Schema, model } = require('mongoose');
+const mongoose = require('mongoose');
 const uuid = require('uuid');
+require('mongoose-uuid2')(mongoose);
+
+const { Schema, model, Types } = mongoose;
+const options = { versionKey: false, timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, toJSON: { virtuals: true } };
 
 const AddressSchema = new Schema({
-    id: {
-        type: String,
-        default: uuid.v4,
-        required: true
+    _id: {
+        type: Types.UUID,
+        default: uuid.v4
     },
     user_id: {
-        type: String,
+        type: Types.UUID,
         required: true
     },
     name: {
@@ -30,13 +33,13 @@ const AddressSchema = new Schema({
             required: true
         }
     }
-}, { versionKey: false });
+}, options);
 
 
 // Relation to emergency contact
 AddressSchema.virtual('emergency_contacts', {
     ref: 'EmergencyContact',
-    localField: 'id',
+    localField: '_id',
     foreignField: 'address_id'
 });
 

@@ -1,14 +1,17 @@
-const { Schema, model } = require('mongoose');
+const mongoose = require('mongoose');
 const uuid = require('uuid');
+require('mongoose-uuid2')(mongoose);
+
+const { Schema, model, Types } = mongoose;
+const options = { versionKey: false, timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, toJSON: { virtuals: true } };
 
 const EmergencyContactSchema = new Schema({
-    id: {
-        type: String,
-        default: uuid.v4,
-        required: true
+    _id: {
+        type: Types.UUID,
+        default: uuid.v4
     },
     address_id: {
-        type: String,
+        type: Types.UUID,
         default: null
     },
     name: {
@@ -23,6 +26,6 @@ const EmergencyContactSchema = new Schema({
         type: String,
         required: true
     }
-}, { versionKey: false });
+}, options);
 
 module.exports = model('EmergencyContact', EmergencyContactSchema, 'emergency_contacts');

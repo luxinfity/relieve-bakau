@@ -42,7 +42,7 @@ exports.createRequest = async (data, context) => {
 
         await Repo.get('family').updateRequest(
             { requestor_id: context.id, target_id: person.id },
-            familyRequest({ data, context }, person),
+            familyRequest(context, person),
             { upsert: true, setDefaultsOnInsert: true }
         );
 
@@ -61,18 +61,15 @@ exports.verifyRequest = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        const person = await Repo.get('user').findOne({ username: data.body.username });
-        if (!person) throw HttpError.BadRequest('requested person not found');
-
-        const request = await Repo.get('family').requestDetail(context.id, person.id, data.body.code, STATUS.WAITING_VERIFICATION);
+        const request = await Repo.get('family').requestDetail(data.body.request_id, context.id, data.body.code, STATUS.WAITING_VERIFICATION);
         if (!request) throw HttpError.BadRequest('family request not found or invalid');
 
         await Promise.join(
             Repo.get('family').updateRequest(
-                { id: request.id },
+                { _id: request.id },
                 { status: STATUS.VERIFIED }
             ),
-            pairUsers([context.id, request.target_id])
+            pairUsers([context.id, request.requestor_id])
         );
 
         return {
@@ -119,11 +116,11 @@ exports.update = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        const family = await Repo.get('family').findOne({ id: data.params.id });
+        const family = await Repo.get('family').findOne({ _id: data.params.id });
         if (!family) throw HttpError.BadRequest('family not found');
 
         const payload = { ...data.body };
-        await Repo.get('family').updateOne({ id: family.id }, payload);
+        await Repo.get('family').updateOne({ _id: family.id }, payload);
 
         return {
             message: 'family updated'

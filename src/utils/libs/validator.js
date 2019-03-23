@@ -66,7 +66,7 @@ const schemas = {
     }),
     verifyRequest: Joi.object({
         body: Joi.object({
-            username: Joi.string().required(),
+            request_id: Joi.string().required(),
             code: Joi.string().required()
         }).required()
     }),

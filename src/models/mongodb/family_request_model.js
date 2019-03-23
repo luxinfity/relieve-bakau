@@ -1,18 +1,21 @@
-const { Schema, model } = require('mongoose');
+const mongoose = require('mongoose');
 const uuid = require('uuid');
+require('mongoose-uuid2')(mongoose);
+
+const { Schema, model, Types } = mongoose;
+const options = { versionKey: false, timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, toJSON: { virtuals: true } };
 
 const FamilyRequestSchema = new Schema({
-    id: {
-        type: String,
-        default: uuid.v4,
-        required: true
+    _id: {
+        type: Types.UUID,
+        default: uuid.v4
     },
     requestor_id: {
-        type: String,
+        type: Types.UUID,
         required: true
     },
     target_id: {
-        type: String,
+        type: Types.UUID,
         required: true
     },
     pair_code: {
@@ -24,12 +27,12 @@ const FamilyRequestSchema = new Schema({
         required: true,
         default: 10
     }
-}, { versionKey: false, toJSON: { virtuals: true } });
+}, options);
 
 FamilyRequestSchema.virtual('requestor', {
     ref: 'User',
     localField: 'requestor_id',
-    foreignField: 'id',
+    foreignField: '_id',
     justOne: true
 });
 
