@@ -1,8 +1,8 @@
 'use strict';
 
+const { HttpError } = require('node-common');
 const Promise = require('bluebird');
 const { HttpResponse } = require('../utils/helpers');
-const { HttpError } = require('../common');
 
 const Repository = require('../repositories');
 const { familyRequest, familyList, requestList } = require('../utils/transformers/family_transformer');

@@ -1,10 +1,10 @@
+const { HttpError } = require('node-common');
 const { Schema, model } = require('mongoose');
 const uuid = require('uuid');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
 
 const Jwt = require('../../utils/libs/jwt');
-const { HttpError } = require('../../common');
 
 const ContactSchema = new Schema({
     number: {

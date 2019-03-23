@@ -1,10 +1,10 @@
 'use strict';
 
 const Promise = require('bluebird');
-const { HttpError } = require('../../common');
+const { HttpError } = require('node-common');
 
 const { EMERGENCY_CONTACT_TYPES: TYPES } = require('../../utils/constant');
-const { MapsContext: GMaps } = require('../../common');
+const GMaps = require('../libs/gmaps');
 
 exports.placeNearby = async (coordinates, radius) => {
     try {

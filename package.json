@@ -1,13 +1,17 @@
 {
-  "name": "exprestful",
-  "version": "1.0.1",
+  "name": "bakau",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./server.js",
-    "dev": "nodemon ./server.js",
+    "serve": "nodemon ./server.js",
+    "server": "node ./server.js",
     "clean-install": "rm -rf node_modules package-lock.json && npm install --save",
-    "test": "NODE_ENV=test nyc --reporter=html --reporter=text ava --verbose",
-    "test-report": "open coverage/index.html",
+    "migrate": "./scripts/migrations/migrate.sh",
+    "migrate:rollback": "./scripts/migrations/rollback.sh",
+    "migrate:refresh": "./scripts/migrations/refresh.sh",
+    "db:seed": "./scripts/migrations/seed.sh",
+    "tests": "NODE_ENV=test nyc --reporter=html --reporter=text ava --verbose",
+    "tests-report": "open coverage/index.html",
     "lint": "eslint --fix src/**"
   },
   "dependencies": {

@@ -3,7 +3,7 @@
 const Promise = require('bluebird');
 
 const { HttpResponse } = require('../utils/helpers');
-const { HttpError } = require('../common');
+const { HttpError } = require('node-common');
 
 const Place = require('../utils/adapters/places');
 const Repository = require('../repositories');

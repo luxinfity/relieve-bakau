@@ -1,7 +1,7 @@
 'use strict';
 
+const { HttpError } = require('node-common');
 const HttpResponse = require('../utils/helpers').HttpResponse;
-const { HttpError } = require('../common');
 
 const Repository = require('../repositories');
 const { profile, completeRegister } = require('../utils/transformers/user_transformer');
