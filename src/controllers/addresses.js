@@ -1,7 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const { HttpError } = require('node-common');
+const { HttpError } = require('relieve-common');
 
 const Place = require('../utils/adapters/places');
 const Repository = require('../repositories');

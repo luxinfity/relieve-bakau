@@ -1,4 +1,4 @@
-const { HttpError } = require('node-common');
+const { HttpError } = require('relieve-common');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
 const mongoose = require('mongoose');

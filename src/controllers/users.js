@@ -1,6 +1,6 @@
 'use strict';
 
-const { HttpError } = require('node-common');
+const { HttpError } = require('relieve-common');
 
 const Repository = require('../repositories');
 const { profile, completeRegister } = require('../utils/transformers/user_transformer');

@@ -1,6 +1,6 @@
 'use strict';
 
-const { DBContext, MongoContext, RedisContext } = require('node-common');
+const { DBContext, MongoContext, RedisContext } = require('relieve-common');
 
 class BaseRepository {
     constructor(context = null) {

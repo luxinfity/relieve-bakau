@@ -1,6 +1,6 @@
 'use strict';
 
-const { HttpError } = require('node-common');
+const { HttpError } = require('relieve-common');
 
 const Repository = require('../repositories');
 const { create } = require('../utils/transformers/position_transformer');

@@ -1,6 +1,6 @@
 'use strict';
 
-const { HttpError } = require('node-common');
+const { HttpError } = require('relieve-common');
 const Config = require('../config/jwt');
 const GAuth = require('../utils/libs/gauth');
 

@@ -2,7 +2,7 @@
 
 const BaseJoi = require('joi');
 const Extension = require('joi-date-extensions');
-const { HttpError } = require('node-common');
+const { HttpError } = require('relieve-common');
 
 const Joi = BaseJoi.extend(Extension);
 
