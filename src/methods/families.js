@@ -137,4 +137,27 @@ exports.update = async (data, context) => {
     }
 };
 
+exports.ping = async (data, context) => {
+    try {
+        const { params: { id } } = data;
+        const Repo = new Repository();
+
+        const connection = await Repo.get('family').findOne({ _id: id });
+        if (!connection) throw HttpError.BadRequest('family not found');
+
+        /** */
+        if (connection.family.fcm_token) {
+            await Message.sendToDevice(connection.family.fcm_token,
+                { notification: MESSAGING_TEMPLATE.FAMILY_PING });
+        }
+
+        return {
+            message: 'family ping'
+        };
+    } catch (err) {
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
+    }
+};
+
 module.exports = exports;

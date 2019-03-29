@@ -4,7 +4,7 @@ const { Firebase } = require('relieve-common');
 
 const options = {};
 
-exports.sendToDevice = async (tokens, { data, notification }) => {
+exports.sendToDevice = async (tokens, { data = {}, notification }) => {
     const instance = await Firebase.getInstance();
     return instance.messaging().sendToDevice(tokens, { data, notification }, options);
 };

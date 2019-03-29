@@ -43,7 +43,8 @@ exports.MODELS_PATH = {
 
 exports.FAMILIY_LIMIT = 5;
 exports.MESSAGING_TEMPLATE = {
-    NEW_FAMILIY_REQUEST: { title: 'Family Request', body: 'theres a new family request' }
+    NEW_FAMILIY_REQUEST: { title: 'Family Request', body: 'theres a new family request' },
+    FAMILY_PING: { title: 'Family Ping', body: 'a family wants to know your condition' }
 };
 
 module.exports = exports;

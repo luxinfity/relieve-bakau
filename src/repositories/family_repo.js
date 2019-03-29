@@ -3,7 +3,8 @@ const BaseRepository = require('./base_repository');
 class FamilyRepo extends BaseRepository {
     async findOne(conditions) {
         const mongo = await this.getMongoInstance();
-        return mongo.Family.findOne(conditions);
+        return mongo.Family.findOne(conditions)
+            .populate('family');
     }
 
     async findAll(conditions) {
