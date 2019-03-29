@@ -5,7 +5,7 @@ const Validator = require('../middlewares/request_validator');
 
 const {
     list, requestList, createRequest, verifyRequest, update
-} = require('../controllers/families');
+} = require('../methods/families');
 const { ExpressLogicAdapter: Logic } = require('../utils/libs/express');
 
 router.get('/', Logic(list));

@@ -5,7 +5,7 @@ const Validator = require('../middlewares/request_validator');
 
 const {
     places, placesDetail, nearbyContacts, addressDetail
-} = require('../controllers/discovers');
+} = require('../methods/discovers');
 const { ExpressLogicAdapter: Logic } = require('../utils/libs/express');
 
 router.post('/places', Logic(places));

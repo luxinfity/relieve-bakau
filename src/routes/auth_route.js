@@ -5,7 +5,7 @@ const Validator = require('../middlewares/request_validator');
 
 const {
     register, login, paramCheck, refresh, googleCallback
-} = require('../controllers/authentication');
+} = require('../methods/authentication');
 const { ExpressLogicAdapter: Logic } = require('../utils/libs/express');
 
 router.get('/', Logic(() => ({ message: 'bakau running' })));
