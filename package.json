@@ -15,6 +15,7 @@
     "lint": "eslint --fix src/**"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.3",
     "body-parser": "~1.18.2",
@@ -36,8 +37,8 @@
     "mongoose-uuid2": "^2.3.0",
     "morgan": "~1.9.0",
     "mysql2": "^1.6.5",
-    "relieve-common": "git+https://github.com/RelieveID/relieve-common.git",
     "randomstring": "^1.1.5",
+    "relieve-common": "git+https://github.com/RelieveID/relieve-common.git",
     "sequelize": "^4.35.2",
     "uuid": "^3.2.1"
   },

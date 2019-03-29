@@ -11,6 +11,11 @@ class FamilyRepo extends BaseRepository {
         return mongo.Family.find(conditions);
     }
 
+    async count(conditions) {
+        const mongo = await this.getMongoInstance();
+        return mongo.Family.countDocuments(conditions);
+    }
+
     async create(payload) {
         const mongo = await this.getMongoInstance();
         return mongo.Family.create(payload);

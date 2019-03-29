@@ -5,7 +5,8 @@ const Promise = require('bluebird');
 
 const Repository = require('../repositories');
 const { familyRequest, familyList, requestList } = require('../utils/transformers/family_transformer');
-const { FAMILIY_REQUEST_STATUS: STATUS } = require('../utils/constant');
+const { FAMILIY_REQUEST_STATUS: STATUS, FAMILIY_LIMIT, MESSAGING_TEMPLATE } = require('../utils/constant');
+const Message = require('../utils/messaging');
 
 const pairUsers = async (userIds) => {
     const Repo = new Repository();
@@ -31,7 +32,9 @@ exports.createRequest = async (data, context) => {
     try {
         const Repo = new Repository();
 
-        // TODO: check family limit
+        const totalConnection = await Repo.get('family').count({ user_id: context.id });
+        if (totalConnection >= FAMILIY_LIMIT) throw HttpError.Forbidden('family limit already reach');
+
         const person = await Repo.get('user').findOne({ username: data.body.username });
         if (!person) throw HttpError.BadRequest('requested person not found');
 
@@ -40,13 +43,16 @@ exports.createRequest = async (data, context) => {
         const check = await Repo.get('family').findOne({ user_id: context.id, 'family.id': person.id });
         if (check) throw HttpError.BadRequest('person already in family list');
 
+        const payload = familyRequest(context, person);
         await Repo.get('family').updateRequest(
-            { requestor_id: context.id, target_id: person.id },
-            familyRequest(context, person),
-            { upsert: true, setDefaultsOnInsert: true }
+            { requestor_id: context.id, target_id: person.id }, payload, { upsert: true, setDefaultsOnInsert: true }
         );
 
-        // TODO: notify requested target
+        /** send notification to requested person */
+        if (person.fcm_token) {
+            await Message.sendToDevice(person.fcm_token,
+                { notification: MESSAGING_TEMPLATE.NEW_FAMILIY_REQUEST, data: { name: person.fullname, code: payload.pair_code } });
+        }
 
         return {
             message: 'family request sent'

@@ -41,4 +41,9 @@ exports.MODELS_PATH = {
     JOB: 'src/jobs'
 };
 
+exports.FAMILIY_LIMIT = 5;
+exports.MESSAGING_TEMPLATE = {
+    NEW_FAMILIY_REQUEST: { title: 'Family Request', body: 'theres a new family request' }
+};
+
 module.exports = exports;
