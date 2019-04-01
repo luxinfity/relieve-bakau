@@ -88,10 +88,11 @@ const schemas = {
     }),
     completeRegistration: Joi.object({
         body: Joi.object({
-            username: Joi.string().min(4).max(20).required(),
-            password: Joi.string().min(5).max(16).required(),
+            fullname: Joi.string().min(4).max(50).required(),
+            username: Joi.string().min(4).max(50).required(),
+            password: Joi.string().min(5).max(20).required(),
             birthdate: Joi.date().format('YYYY-MM-DD').required(),
-            phone: Joi.string().min(7).max(20).required(),
+            phone: Joi.string().regex(PHONE_REGEX).required(),
             gender: Joi.string().valid('m', 'f').required()
         }).required()
     }),
