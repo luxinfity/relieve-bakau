@@ -53,4 +53,13 @@ exports.REDIRECT_ACTIONS = {
     COMPLETE_REGISTRATION: 'complete-registration'
 };
 
+exports.RADIUS = {
+    EMERGENCY_CONTACT: 1500,
+    ADDRESS_CREATION: 50
+};
+
+exports.JOBS = {
+    GENERATE_EMERGENCY_CONTACT: 'generate-emergency-contact'
+};
+
 module.exports = exports;

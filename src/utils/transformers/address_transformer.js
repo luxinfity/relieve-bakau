@@ -13,12 +13,12 @@ exports.address_components = (address) => {
     return details;
 };
 
-exports.create = ({ data, context }, address) => {
-    const [lat, lng] = data.body.coordinates.split(',').map(item => +item.trim());
+exports.create = ({ data, user_id: userId }, address) => {
+    const [lat, lng] = data.coordinates.split(',').map(item => +item.trim());
     const details = exports.address_components(address);
     return {
-        name: data.body.name,
-        user_id: context.id,
+        name: data.name,
+        user_id: userId,
         details,
         geograph: {
             type: 'Point',
