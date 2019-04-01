@@ -7,6 +7,7 @@ const { HttpError } = require('relieve-common');
 const Joi = BaseJoi.extend(Extension);
 
 const COOR_REGEX = /^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$/;
+const PHONE_REGEX = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/; // eslint-disable-line
 
 const schemas = {
     login: Joi.object({
@@ -17,13 +18,13 @@ const schemas = {
     }),
     register: Joi.object({
         body: Joi.object({
-            username: Joi.string().min(4).max(20).required(),
-            password: Joi.string().min(5).max(16).required(),
-            email: Joi.string().max(50).required(),
+            username: Joi.string().min(4).max(50).required(),
+            password: Joi.string().min(5).max(20).required(),
+            email: Joi.string().email().required(),
             fullname: Joi.string().min(4).max(50).required(),
             gender: Joi.string().valid('m', 'f').required(),
             birthdate: Joi.date().format('YYYY-MM-DD').required(),
-            phone: Joi.string().min(7).max(20).required()
+            phone: Joi.string().regex(PHONE_REGEX).required()
         }).required()
     }),
     refresh: Joi.object({

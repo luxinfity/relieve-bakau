@@ -39,8 +39,7 @@ const UserSchema = new Schema({
         default: uuid.v4
     },
     fullname: {
-        type: String,
-        required: true
+        type: String
     },
     username: {
         type: String

@@ -6,6 +6,7 @@ const GAuth = require('../utils/libs/gauth');
 
 const Repository = require('../repositories');
 const { create, googleCallback } = require('../utils/transformers/user_transformer');
+const { REDIRECT_ACTIONS } = require('../utils/constant');
 
 exports.register = async (data, context) => {
     try {
@@ -101,31 +102,23 @@ exports.googleCallback = async (data, context) => {
         const payload = googleCallback(jwtPayload);
 
         const Repo = new Repository();
+        let user = await Repo.get('user').findOne({ email: payload.email });
 
-        const user = await Repo.get('user').findOne({ email: payload.email });
-        let action = 'login';
 
         /** if user already registered, authenticate user */
-        if (user) {
-            const { token, refresh: refreshToken } = await user.sign();
-            return {
-                message: `${action} success`,
-                data: {
-                    token,
-                    refresh_token: refreshToken,
-                    expires_in: Config.expired,
-                    action
-                }
-            };
+        if (!user) {
+            user = await Repo.get('user').create({ email: payload.email, is_complete: false });
         }
 
-        /** if not registered, return basic info for registration */
-        action = 'register';
+        const redirect = user.fullname ? REDIRECT_ACTIONS.NONE : REDIRECT_ACTIONS.COMPLETE_REGISTRATION;
+        const { token, refresh: refreshToken } = await user.sign();
         return {
-            message: `redirect to ${action}`,
+            message: 'callback success',
             data: {
-                ...payload,
-                action
+                token,
+                refresh_token: refreshToken,
+                expires_in: Config.expired,
+                redirect
             }
         };
     } catch (err) {
