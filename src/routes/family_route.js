@@ -13,6 +13,6 @@ router.get('/request', Logic(requestList));
 router.post('/request', Validator('createRequest'), Logic(createRequest));
 router.post('/request/verify', Validator('verifyRequest'), Logic(verifyRequest));
 router.put('/:id/update', Validator('updateRequest'), Logic(update));
-router.post('/:id/ping', Logic(ping));
+router.post('/:id/ping', Validator('ping'), Logic(ping));
 
 module.exports = router;

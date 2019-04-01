@@ -51,7 +51,7 @@ exports.createRequest = async (data, context) => {
         /** send notification to requested person */
         if (person.fcm_token) {
             await Message.sendToDevice(person.fcm_token,
-                { notification: MESSAGING_TEMPLATE.NEW_FAMILIY_REQUEST, data: { name: person.fullname, code: payload.pair_code } });
+                { notification: MESSAGING_TEMPLATE.FAMILY_REQUEST, data: { name: person.fullname, code: payload.pair_code } });
         }
 
         return {
@@ -139,7 +139,7 @@ exports.update = async (data, context) => {
 
 exports.ping = async (data, context) => {
     try {
-        const { params: { id } } = data;
+        const { params: { id }, body: { ping_type: pingType } } = data;
         const Repo = new Repository();
 
         const connection = await Repo.get('family').findOne({ _id: id });
@@ -148,11 +148,11 @@ exports.ping = async (data, context) => {
         /** */
         if (connection.family.fcm_token) {
             await Message.sendToDevice(connection.family.fcm_token,
-                { notification: MESSAGING_TEMPLATE.FAMILY_PING });
+                { notification: MESSAGING_TEMPLATE[pingType], data: { token: connection.family.fcm_token } });
         }
 
         return {
-            message: 'family ping'
+            message: 'ping'
         };
     } catch (err) {
         if (err.status) throw err;

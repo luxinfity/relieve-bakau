@@ -106,6 +106,14 @@ const schemas = {
         body: Joi.object({
             fcm_token: Joi.string().required()
         }).required()
+    }),
+    ping: Joi.object({
+        body: Joi.object({
+            ping_type: Joi.string().valid('FAMILY_CONDITION', 'CHAT').required()
+        }).required(),
+        params: Joi.object({
+            id: Joi.string().required()
+        }).required()
     })
 };
 
