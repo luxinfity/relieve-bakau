@@ -133,6 +133,13 @@ const schemas = {
             birthdate: Joi.date().format('YYYY-MM-DD').optional(),
             phone: Joi.string().regex(PHONE_REGEX).optional()
         }).required()
+    }),
+    updatePassword: Joi.object({
+        body: Joi.object({
+            old_password: Joi.string().required(),
+            new_password: Joi.string().min(4).max(30).required(),
+            confirm_password: Joi.string().required()
+        }).required()
     })
 };
 

@@ -82,7 +82,7 @@ UserSchema.method({
         };
     },
     async signIn(password) {
-        if (!bcrypt.compareSync(password, this.password)) throw HttpError.NotAuthorized('Credentials not match');
+        if (!bcrypt.compareSync(password, this.password)) throw HttpError.NotAuthorized('credentials not match');
         const { token, refresh } = await createTokens(this);
         await this.updateOne({ refresh_token: { token: refresh.token, expired_at: refresh.validity } });
         return {

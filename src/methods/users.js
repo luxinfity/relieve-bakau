@@ -1,6 +1,7 @@
 'use strict';
 
 const { HttpError } = require('relieve-common');
+const bcrypt = require('bcryptjs');
 
 const Repository = require('../repositories');
 const { profile, completeRegister } = require('../utils/transformers/user_transformer');
@@ -61,6 +62,30 @@ exports.updateProfile = async (data, context) => {
 
         return {
             message: 'update profile success'
+        };
+    } catch (err) {
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
+    }
+};
+
+exports.updatePassword = async (data, context) => {
+    try {
+        const { body: { old_password: password, new_password: newPass, confirm_password: confirmPass } } = data;
+        const Repo = new Repository();
+
+        /** get complete user data */
+        const user = await Repo.get('user').findOne({ _id: context.id });
+        if (!bcrypt.compareSync(password, user.password)) throw HttpError.NotAuthorized('credentials not match');
+
+        /** check wheter new and confirm password is same */
+        if (newPass !== confirmPass) throw HttpError.BadRequest('password confirmation not same');
+
+        /** update password */
+        await Repo.get('user').updateOne({ _id: context.id }, { password: bcrypt.hashSync(newPass, 10) });
+
+        return {
+            message: 'password update success'
         };
     } catch (err) {
         if (err.status) throw err;
