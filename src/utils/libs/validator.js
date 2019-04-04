@@ -113,7 +113,8 @@ const schemas = {
     }),
     ping: Joi.object({
         body: Joi.object({
-            ping_type: Joi.string().valid('FAMILY_CONDITION', 'CHAT').required()
+            ping_type: Joi.string().valid('FAMILY_CONDITION', 'CHAT').required(),
+            payload: Joi.any().optional().default(null)
         }).required(),
         params: Joi.object({
             id: Joi.string().required()

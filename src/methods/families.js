@@ -163,7 +163,7 @@ exports.update = async (data, context) => {
 
 exports.ping = async (data, context) => {
     try {
-        const { params: { id }, body: { ping_type: pingType } } = data;
+        const { params: { id }, body: { ping_type: pingType, payload } } = data;
         const Repo = new Repository();
 
         const connection = await Repo.get('family').findOne({ _id: id });
@@ -172,7 +172,7 @@ exports.ping = async (data, context) => {
         /** */
         if (connection.family.fcm_token) {
             await Message.sendToDevice(connection.family.fcm_token,
-                { notification: MESSAGING_TEMPLATE[pingType], data: { token: connection.family.fcm_token } });
+                { notification: MESSAGING_TEMPLATE[pingType], data: { token: connection.family.fcm_token, payload } });
         }
 
         return {
