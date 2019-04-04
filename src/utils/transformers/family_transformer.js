@@ -6,12 +6,15 @@ exports.familyRequest = (context, person) => ({
 });
 
 exports.familyList = families => families.map((person) => {
+    console.log(JSON.stringify(person));
+
     let condition = null;
     if (person.condition) {
         const [lng, lat] = person.condition.geograph.coordinates;
         condition = {
             status: person.condition.status,
-            location: `${lat}, ${lng}`
+            location: `${lat}, ${lng}`,
+            date: person.condition.created_at
         };
     }
     return ({

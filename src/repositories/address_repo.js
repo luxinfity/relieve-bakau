@@ -30,6 +30,7 @@ class AddressRepo extends BaseRepository {
     async findNearby(conditions, coordinates, radius = 10) {
         const mongo = await this.getMongoInstance();
         return mongo.Address.findOne({
+            ...conditions,
             geograph: {
                 $near: {
                     $geometry: { type: 'Point', coordinates },
