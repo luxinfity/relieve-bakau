@@ -6,6 +6,11 @@ class UserRepo extends BaseRepository {
         return mongo.User.findOne(conditions);
     }
 
+    async findAll(conditions) {
+        const mongo = await this.getMongoInstance();
+        return mongo.User.find(conditions);
+    }
+
     async create(payload) {
         const mongo = await this.getMongoInstance();
         return mongo.User.create(payload);

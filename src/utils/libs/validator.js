@@ -118,6 +118,11 @@ const schemas = {
         params: Joi.object({
             id: Joi.string().required()
         }).required()
+    }),
+    searchFamily: Joi.object({
+        params: Joi.object({
+            search: Joi.string().required()
+        }).required()
     })
 };
 

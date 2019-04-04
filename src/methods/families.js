@@ -28,6 +28,31 @@ const pairUsers = async (userIds) => {
     }, { concurrency: 5 });
 };
 
+exports.search = async (data, context) => {
+    try {
+        const { params: { search } } = data;
+        const Repo = new Repository();
+
+        const query = {
+            _id: { $ne: context.id },
+            $or: [
+                { email: search },
+                { username: { $regex: search } }
+                // { fullname: { $regex: search } }
+            ]
+        };
+        const user = await Repo.get('user').findAll(query);
+
+        return {
+            message: 'user data retrieved',
+            data: user.map(item => ({ id: item.id, fullname: item.fullname }))
+        };
+    } catch (err) {
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
+    }
+};
+
 exports.createRequest = async (data, context) => {
     try {
         const Repo = new Repository();
