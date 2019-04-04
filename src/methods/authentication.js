@@ -7,6 +7,7 @@ const GAuth = require('../utils/libs/gauth');
 const Repository = require('../repositories');
 const { create, googleCallback } = require('../utils/transformers/user_transformer');
 const { REDIRECT_ACTIONS } = require('../utils/constant');
+const AddressAdapter = require('../utils/adapters/address');
 
 exports.register = async (data, context) => {
     try {
@@ -20,6 +21,9 @@ exports.register = async (data, context) => {
 
         const payload = create(data.body);
         const newUser = await Repo.get('user').create(payload);
+
+        /** generate address */
+        await AddressAdapter.createNewAddress(data.body.address, newUser.id);
 
         const { token, refresh: refreshToken } = await newUser.sign();
 
@@ -110,7 +114,7 @@ exports.googleCallback = async (data, context) => {
             user = await Repo.get('user').create({ email: payload.email, is_complete: false });
         }
 
-        const redirect = user.fullname ? REDIRECT_ACTIONS.NONE : REDIRECT_ACTIONS.COMPLETE_REGISTRATION;
+        const redirect = user.is_complete ? REDIRECT_ACTIONS.NONE : REDIRECT_ACTIONS.COMPLETE_REGISTRATION;
         const { token, refresh: refreshToken } = await user.sign();
         return {
             message: 'callback success',

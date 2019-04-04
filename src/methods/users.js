@@ -4,6 +4,7 @@ const { HttpError } = require('relieve-common');
 
 const Repository = require('../repositories');
 const { profile, completeRegister } = require('../utils/transformers/user_transformer');
+const AddressAdapter = require('../utils/adapters/address');
 
 exports.profile = async (data, context) => {
     try {
@@ -32,6 +33,9 @@ exports.completeRegister = async (data, context) => {
 
         const payload = completeRegister(data.body);
         await user.update(payload);
+
+        /** generate address */
+        await AddressAdapter.createNewAddress(data.body.address, user.id);
 
         return {
             message: 'complete register success'

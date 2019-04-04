@@ -9,6 +9,11 @@ const Joi = BaseJoi.extend(Extension);
 const COOR_REGEX = /^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$/;
 const PHONE_REGEX = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/; // eslint-disable-line
 
+const ADDRESS = Joi.object({
+    name: Joi.string().min(4).max(50).required(),
+    coordinates: Joi.string().regex(COOR_REGEX).required()
+}).required();
+
 const schemas = {
     login: Joi.object({
         body: Joi.object({
@@ -24,7 +29,8 @@ const schemas = {
             fullname: Joi.string().min(4).max(50).required(),
             gender: Joi.string().valid('m', 'f').required(),
             birthdate: Joi.date().format('YYYY-MM-DD').required(),
-            phone: Joi.string().regex(PHONE_REGEX).required()
+            phone: Joi.string().regex(PHONE_REGEX).required(),
+            address: ADDRESS
         }).required()
     }),
     refresh: Joi.object({
@@ -44,10 +50,7 @@ const schemas = {
         }).required()
     }),
     createAddress: Joi.object({
-        body: Joi.object({
-            name: Joi.string().min(4).max(25).required(),
-            coordinates: Joi.string().regex(COOR_REGEX).required()
-        }).required()
+        body: ADDRESS
     }),
     nearby: Joi.object({
         query: Joi.object({
@@ -93,7 +96,8 @@ const schemas = {
             password: Joi.string().min(5).max(20).required(),
             birthdate: Joi.date().format('YYYY-MM-DD').required(),
             phone: Joi.string().regex(PHONE_REGEX).required(),
-            gender: Joi.string().valid('m', 'f').required()
+            gender: Joi.string().valid('m', 'f').required(),
+            address: ADDRESS
         }).required()
     }),
     updatePosition: Joi.object({

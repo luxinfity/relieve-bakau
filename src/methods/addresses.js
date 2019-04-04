@@ -6,7 +6,6 @@ const Repository = require('../repositories');
 const AddressAdapter = require('../utils/adapters/address');
 const { list: addressList, detail } = require('../utils/transformers/address_transformer');
 
-
 exports.create = async (data, context) => {
     try {
         await AddressAdapter.createNewAddress(data.body, context.id);
