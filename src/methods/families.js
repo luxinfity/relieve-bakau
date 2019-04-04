@@ -33,7 +33,7 @@ exports.createRequest = async (data, context) => {
         const Repo = new Repository();
 
         const totalConnection = await Repo.get('family').count({ user_id: context.id });
-        if (totalConnection >= FAMILIY_LIMIT) throw HttpError.Forbidden('family limit already reach');
+        if (totalConnection >= FAMILIY_LIMIT) throw HttpError.Forbidden(`family limit of ${FAMILIY_LIMIT}, already reached`);
 
         const person = await Repo.get('user').findOne({ username: data.body.username });
         if (!person) throw HttpError.BadRequest('requested person not found');
