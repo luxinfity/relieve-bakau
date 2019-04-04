@@ -38,7 +38,6 @@ exports.search = async (data, context) => {
             $or: [
                 { email: search },
                 { username: { $regex: search } }
-                // { fullname: { $regex: search } }
             ]
         };
         const user = await Repo.get('user').findAll(query);
@@ -60,7 +59,7 @@ exports.createRequest = async (data, context) => {
         const totalConnection = await Repo.get('family').count({ user_id: context.id });
         if (totalConnection >= FAMILIY_LIMIT) throw HttpError.Forbidden(`family limit of ${FAMILIY_LIMIT}, already reached`);
 
-        const person = await Repo.get('user').findOne({ username: data.body.username });
+        const person = await Repo.get('user').findOne({ id: data.body.id });
         if (!person) throw HttpError.BadRequest('requested person not found');
 
         if (context.id === person.id) throw HttpError.Forbidden('cannot request to yourself');

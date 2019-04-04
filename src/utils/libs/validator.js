@@ -65,7 +65,7 @@ const schemas = {
     }),
     createRequest: Joi.object({
         body: Joi.object({
-            username: Joi.string().max(20).required()
+            id: Joi.string().required()
         }).required()
     }),
     verifyRequest: Joi.object({
