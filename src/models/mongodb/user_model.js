@@ -10,18 +10,6 @@ const Jwt = require('../../utils/libs/jwt');
 const { Schema, model, Types } = mongoose;
 const options = { versionKey: false, timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, toJSON: { virtuals: true } };
 
-const ContactSchema = new Schema({
-    number: {
-        type: String,
-        required: true
-    },
-    status: {
-        type: Number,
-        enum: [10, 20],
-        required: true
-    }
-}, { versionKey: false, _id: false });
-
 const RefreshTokenSchema = new Schema({
     token: {
         type: String,
@@ -57,8 +45,8 @@ const UserSchema = new Schema({
     birthdate: {
         type: Date
     },
-    phones: {
-        type: [ContactSchema]
+    phone: {
+        type: String
     },
     gender: {
         type: String,

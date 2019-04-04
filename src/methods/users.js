@@ -21,7 +21,7 @@ exports.profile = async (data, context) => {
     }
 };
 
-exports.completeRegister = async (data, context) => {
+exports.completeProfile = async (data, context) => {
     try {
         const Repo = new Repository();
 
@@ -39,6 +39,28 @@ exports.completeRegister = async (data, context) => {
 
         return {
             message: 'complete register success'
+        };
+    } catch (err) {
+        if (err.status) throw err;
+        throw HttpError.InternalServerError(err.message);
+    }
+};
+
+exports.updateProfile = async (data, context) => {
+    try {
+        const { body } = data;
+        const Repo = new Repository();
+
+        const payload = { ...body };
+        if (payload.username) {
+            const find = await Repo.get('user').findOne({ username: payload.username });
+            if (find) throw HttpError.BadRequest('username already exsist');
+        }
+
+        await Repo.get('user').updateOne({ _id: context.id }, payload);
+
+        return {
+            message: 'update profile success'
         };
     } catch (err) {
         if (err.status) throw err;

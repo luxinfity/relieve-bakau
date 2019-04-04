@@ -124,6 +124,15 @@ const schemas = {
         params: Joi.object({
             search: Joi.string().required()
         }).required()
+    }),
+    updateProfile: Joi.object({
+        body: Joi.object({
+            username: Joi.string().min(4).max(50).optional(),
+            fullname: Joi.string().min(4).max(50).optional(),
+            gender: Joi.string().valid('m', 'f').optional(),
+            birthdate: Joi.date().format('YYYY-MM-DD').optional(),
+            phone: Joi.string().regex(PHONE_REGEX).optional()
+        }).required()
     })
 };
 

@@ -17,7 +17,7 @@ const normalizeName = (payload) => {
 
 exports.create = (payload, { is_complete: isComplete } = { is_complete: true }) => ({
     ...payload,
-    phones: payload.phone ? [{ number: payload.phone, status: 10 }] : [], // set as primary phone
+    phone: payload.phone ? payload.phone : null, // set as primary phone
     password: payload.password || null,
     birthdate: payload.birthdate ? moment(payload.birthdate).format('YYYY-MM-DD') : null,
     is_complete: isComplete,
@@ -31,7 +31,7 @@ exports.googleCallback = payload => ({
 
 exports.completeRegister = payload => ({
     ...payload,
-    phones: [{ number: payload.phone, status: 10 }], // set as primary phone
+    phone: payload.phone,
     password: bcrypt.hashSync(payload.password, 8),
     birthdate: moment(payload.birthdate).format('YYYY-MM-DD'),
     is_complete: true
@@ -41,7 +41,7 @@ exports.profile = user => ({
     fullname: user.fullname,
     username: user.username,
     email: user.email,
-    phones: user.phones,
+    phone: user.phone,
     birthdate: user.birthdate,
     is_complete: user.is_complete,
     gender: user.gender
