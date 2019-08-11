@@ -5,7 +5,7 @@
     "scripts": {
         "serve": "nodemon ./server.js",
         "server": "node ./server.js",
-        "clean-install": "rm -rf node_modules package-lock.json && yarn install",
+        "clean-install": "rm -rf node_modules package-lock.json && npm install",
         "migrate": "./scripts/migrations/migrate.sh",
         "migrate:rollback": "./scripts/migrations/rollback.sh",
         "migrate:refresh": "./scripts/migrations/refresh.sh",
@@ -51,7 +51,7 @@
         "eslint-plugin-jsx-a11y": "^6.2.1",
         "eslint-plugin-react": "^7.12.4",
         "nodemon": "^1.18.10",
-        "nyc": "^13.3.0",
+        "nyc": "^14.1.1",
         "sinon": "^7.2.4",
         "sinon-express-mock": "^2.1.0",
         "supertest": "^3.4.2"
