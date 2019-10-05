@@ -3,7 +3,7 @@ const { OAuth2Client } = require('google-auth-library');
 let client;
 
 exports.initialize = () => {
-    client = new OAuth2Client(process.env.FIREBASE_CLIENT_ID);
+    client = new OAuth2Client(process.env.FB_CLIENT_ID);
 };
 
 exports.getClient = () => {

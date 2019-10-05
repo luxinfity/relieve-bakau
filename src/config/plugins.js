@@ -5,7 +5,7 @@ module.exports = {
         key: process.env.GMAPS_APIKEY
     },
     firebase: {
-        databaseURL: process.env.FIREBASE_DB_URL,
-        credentialPath: process.env.FIREBASE_CERT_PATH
+        databaseURL: process.env.FB_DB_URL,
+        credentialPath: process.env.FB_CERT_PATH
     }
 };
