@@ -7,7 +7,7 @@ require('mongoose-uuid2')(mongoose);
 
 const Jwt = require('../../utils/libs/jwt');
 
-const { Schema, model, Types } = mongoose;
+const { Schema, model } = mongoose;
 const options = { versionKey: false, timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, toJSON: { virtuals: true } };
 
 const RefreshTokenSchema = new Schema({
@@ -23,7 +23,7 @@ const RefreshTokenSchema = new Schema({
 
 const UserSchema = new Schema({
     _id: {
-        type: Types.UUID,
+        type: String,
         default: uuid.v4
     },
     fullname: {

@@ -4,7 +4,9 @@ const { HttpError } = require('relieve-common');
 const JWT = require('../utils/libs/jwt');
 const parseDataObject = require('../utils/helpers').parseDataObject;
 
-const generateContext = async payload => parseDataObject({ id: payload.uid });
+const generateContext = async payload => parseDataObject({
+    id: payload.uid
+});
 
 module.exports = async (req, res, next) => {
     try {

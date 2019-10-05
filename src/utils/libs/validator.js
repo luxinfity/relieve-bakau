@@ -1,10 +1,10 @@
 'use strict';
 
-const BaseJoi = require('joi');
-const Extension = require('joi-date-extensions');
+const BaseJoi = require('@hapi/joi');
+const JoiDate = require('@hapi/joi-date');
 const { HttpError } = require('relieve-common');
 
-const Joi = BaseJoi.extend(Extension);
+const Joi = BaseJoi.extend(JoiDate);
 
 const COOR_REGEX = /^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$/;
 const PHONE_REGEX = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/; // eslint-disable-line

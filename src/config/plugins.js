@@ -6,6 +6,6 @@ module.exports = {
     },
     firebase: {
         databaseURL: process.env.FIREBASE_DB_URL,
-        credential: require('../../storage/firebase-service-account.json')
+        credentialPath: process.env.FIREBASE_CERT_PATH
     }
 };

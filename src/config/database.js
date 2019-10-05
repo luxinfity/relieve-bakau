@@ -18,7 +18,8 @@ exports.sequelize = {
 exports.mongodb = {
     connection_string: process.env.MONGO_CONNECTION_STRING,
     options: {
-        useNewUrlParser: true
+        useNewUrlParser: true,
+        useUnifiedTopology: true
     }
 };
 
