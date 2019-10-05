@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-    HttpError, MongoContext, JobWorker, Maps, Firebase
+    HttpError, MongoContext, Maps, Firebase, JobWorker
 } = require('relieve-common');
 const express = require('express');
 const logger = require('morgan');
@@ -17,15 +17,19 @@ const ExceptionHandler = require('./exceptions');
 /** Configuration file */
 const { mongodb: MongoConfig } = require('./config/database');
 const { maps: MapsConfig, firebase: FirebaseConfig } = require('./config/plugins');
-const { MODELS_PATH } = require('./utils/constant');
 
 /** Initialize Express */
 const app = express();
 
 /** Singleton Instances */
 HttpError.initialize();
-MongoContext.initialize({ path: MODELS_PATH.MONGO, config: MongoConfig });
-JobWorker.initialize({ path: MODELS_PATH.JOB });
+MongoContext.initialize({
+    path: process.env.MONGO_MODELS_PATH,
+    config: MongoConfig
+});
+JobWorker.initialize({
+    path: process.env.JOB_PATH
+});
 Firebase.initialize(FirebaseConfig);
 Maps.initialize(MapsConfig);
 
